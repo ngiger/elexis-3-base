@@ -1,29 +1,52 @@
-/*******************************************************************************
- * Copyright (c) 2010 by Niklaus Giger
- * based on importer.java by G. Weirich
- * Adapted from Viollier to Bioanalytica by Daniel Lutz <danlutz@watz.ch>
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- ******************************************************************************/
+/**********************************************************************
+ * Copyright (c) 2005 IBM Corporation and others. All rights reserved.   This
+ * program and the accompanying materials are made available under the terms of
+ * the Eclipse Public License v1.0 which accompanies this distribution, and is
+ * available at http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * IBM - Initial API and implementation
+ **********************************************************************/
 package ch.elexis.laborimport.analytica;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import org.eclipse.osgi.util.NLS;
 
-public class Messages {
-	private static final String BUNDLE_NAME = "ch.elexis.laborimport.analytica.messages"; //$NON-NLS-1$
-	
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-	
-	private Messages(){}
-	
-	public static String getString(String key){
-		try {
-			return RESOURCE_BUNDLE.getString(key);
-		} catch (MissingResourceException e) {
-			return '!' + key + '!';
-		}
-	}
+public class Messages extends NLS {
+  private static final String BUNDLE_NAME = "ch.elexis.laborimport.analytica.messages";
+    public static String ImporterPage_allFiles;
+    public static String ImporterPage_browse;
+    public static String ImporterPage_file;
+    public static String Importer_automatisch;
+    public static String Importer_batchFehler_error;
+    public static String Importer_batch_label;
+    public static String Importer_cancelled;
+    public static String Importer_error_archivieren;
+    public static String Importer_error_import;
+    public static String Importer_error_moveToArchive;
+    public static String Importer_ftp_label;
+    public static String Importer_import_header;
+    public static String Importer_import_message;
+    public static String Importer_lab;
+    public static String Importer_label_importDirect;
+    public static String Importer_label_importFile;
+    public static String Importer_leereBatchdatei_error;
+    public static String Importer_ok;
+    public static String Importer_question_allreadyImported;
+    public static String Importer_question_allreadyImported_continue;
+    public static String Importer_semaphore_error;
+    public static String Importer_title_description;
+    public static String PreferencePage_batchdatei_label;
+    public static String PreferencePage_batchscript_label;
+    public static String PreferencePage_direktimport_label;
+    public static String PreferencePage_ftpserver_label;
+    public static String PreferencePage_label_download;
+    public static String PreferencePage_label_host;
+    public static String PreferencePage_label_ovpn;
+    public static String PreferencePage_label_password;
+    public static String PreferencePage_label_user;
+    public static String PreferencePage_title_description;
+
+    static { // load message values from bundle file
+    NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+  }
 }

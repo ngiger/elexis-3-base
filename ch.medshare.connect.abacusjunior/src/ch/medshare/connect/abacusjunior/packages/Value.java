@@ -8,22 +8,23 @@ import ch.elexis.data.LabItem;
 import ch.elexis.data.LabResult;
 import ch.elexis.data.Labor;
 import ch.elexis.data.Patient;
+import ch.medshare.connect.abacusjunior.Messages;
 import ch.rgw.tools.TimeTool;
 
 public class Value {
 	private static final String BUNDLE_NAME =
 		"ch.medshare.connect.abacusjunior.packages.valuetexts";
-	
+
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
-	
+
 	private static String getString(String paramName, String key){
 		return RESOURCE_BUNDLE.getString(paramName + "." + key);
 	}
-	
+
 	public static Value getValue(String paramName){
 		return new Value(paramName);
 	}
-	
+
 	Labor _myLab;
 	String _shortName;
 	String _longName;
@@ -31,15 +32,15 @@ public class Value {
 	LabItem _labItem;
 	String _refMann;
 	String _refFrau;
-	
+
 	public String get_shortName(){
 		return _shortName;
 	}
-	
+
 	public String get_longName(){
 		return _longName;
 	}
-	
+
 	Value(String paramName){
 		_shortName = getString(paramName, "kuerzel");
 		_longName = getString(paramName, "text");
@@ -47,45 +48,45 @@ public class Value {
 		_refMann = getString(paramName, "refM");
 		_refFrau = getString(paramName, "refF");
 	}
-	
+
 	private void initialize(){
-		_myLab = LabImportUtil.getOrCreateLabor(Messages.getString("Value.LabKuerzel"));
+		_myLab = LabImportUtil.getOrCreateLabor(Messages.Value_LabKuerzel);
 		_labItem = LabImportUtil.getLabItem(_shortName, _myLab);
-		
+
 		if (_labItem == null) {
 			_labItem =
 				new LabItem(_shortName, _longName, _myLab, _refMann, _refFrau, _unit,
-					LabItem.typ.NUMERIC, Messages.getString("Value.LabName"), "50");
+					LabItem.typ.NUMERIC, Messages.Value_LabName, "50");
 		}
 	}
-	
+
 	public TransientLabResult fetchValue(Patient patient, String value, String flags, TimeTool date){
 		if (_labItem == null) {
 			initialize();
 		}
-		
+
 		// do not set a flag or comment if none is given
 		if (flags == null || flags.isEmpty()) {
 			return new TransientLabResult.Builder(patient, _myLab, _labItem, value).date(date)
 				.build();
 		}
-		
+
 		String comment = "";
 		int resultFlags = 0;
 		if (flags.equals("1")) {
-			// comment = Messages.getString("Value.High");
+			// comment = Messages.Value_High;
 			resultFlags |= LabResult.PATHOLOGIC;
 		}
 		if (flags.equals("2")) {
-			// comment = Messages.getString("Value.Low");
+			// comment = Messages.Value_Low;
 			resultFlags |= LabResult.PATHOLOGIC;
 		}
 		if (flags.equals("*") || flags.equals("E")) {
-			comment = Messages.getString("Value.Error");
+			comment = Messages.Value_Error;
 		}
-		
+
 		return new TransientLabResult.Builder(patient, _myLab, _labItem, value).date(date)
 			.comment(comment).flags(resultFlags).build();
-		
+
 	}
 }

@@ -170,7 +170,7 @@ public class KonsHeader implements IJournalArea {
 			Mandant m = actKons.getMandant();
 			sb = new StringBuilder();
 			if (m == null) {
-				sb.append(ch.elexis.core.ui.views.Messages.KonsDetailView_NotYours); // $NON-NLS-1$
+				sb.append(ch.elexis.core.ui.Messages.KonsDetailView_NotYours); // $NON-NLS-1$
 			} else {
 				Rechnungssteller rs = m.getRechnungssteller();
 				if (rs.getId().equals(m.getId())) {

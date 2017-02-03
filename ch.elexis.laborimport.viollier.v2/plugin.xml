@@ -5,7 +5,7 @@
          point="ch.elexis.core.ui.LaborDatenImport">
       <Importer
             Class="ch.elexis.labor.viollier.v2.labimport.LabOrderImport"
-            name="%importer.name">
+            name="%importer_name">
       </Importer>
    </extension>
 	<extension
@@ -14,7 +14,7 @@
         category="ch.elexis.preferences.transporters"
         class="ch.elexis.labor.viollier.v2.ViollierPreferencePage"
         id="ch.elexis.labor.viollier.v2.prefs"
-        name="%preferences.title">
+        name="%preferences_title">
 		</page>
 	</extension>
 </plugin>

@@ -8,13 +8,13 @@
             fixed="false"
             icon="icons/iatrix.ico"
             id="org.iatrix.perspective.KgIatrixPerspective"
-            name="%iatrix.perspective"/>
+            name="%iatrix_perspective"/>
    </extension>
    <extension
          point="ch.elexis.core.ui.Sidebar">
       <Perspektive
             ID="org.iatrix.perspective.KgIatrixPerspective"
-            name="%iatrix.perspective"/>
+            name="%iatrix_perspective"/>
    </extension>
    <extension
          point="org.eclipse.ui.views">
@@ -45,7 +45,7 @@
             class="org.iatrix.views.WebBrowserView"
             icon="icons/applications-internet.png"
             id="org.iatrix.views.WebBrowserView"
-            name="%iatrix.WebBrowserView">
+            name="%iatrix_WebBrowserView">
       </view>
    </extension>
    <extension
@@ -58,12 +58,12 @@
          point="org.eclipse.ui.contexts">
       <context
             id="org.iatrix.view.context"
-            name="%iatrix.view.context.name"
+            name="%iatrix_view_context_name"
             parentId="org.eclipse.ui.contexts.window">
       </context>
       <context
             id="org.iatrix.view.konslist.context"
-            name="%iatrix.view.konslist.context.name"
+            name="%iatrix_view_konslist_context_name"
             parentId="org.eclipse.ui.contexts.window">
       </context>
    </extension>
@@ -117,36 +117,36 @@
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.newcons"
-            name="%iatrix.commands.newcons">
+            name="%iatrix_commands_newcons">
       </command>
       <category
             id="org.iatrix.commands.category"
-            name="%iatrix.commands.category">
+            name="%iatrix_commands_category">
       </category>
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.export_clipboard"
-            name="%iatrix.commands.export_clipboard">
+            name="%iatrix_commands_export_clipboard">
       </command>
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.newproblem"
-            name="%iatrix.commands.newproblem">
+            name="%iatrix_commands_newproblem">
       </command>
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.show_all_charges"
-            name="%iatrix.commands.show_all_charges">
+            name="%iatrix_commands_show_all_charges">
       </command>
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.show_all_consultations"
-            name="%iatrix.commands.show_all_consultations">
+            name="%iatrix_commands_show_all_consultations">
       </command>
       <command
             categoryId="org.iatrix.commands.category"
             id="org.iatrix.commands.send_email"
-            name="%iatrix.commands.send_email">
+            name="%iatrix_commands_send_email">
       </command>
    </extension>
    <extension

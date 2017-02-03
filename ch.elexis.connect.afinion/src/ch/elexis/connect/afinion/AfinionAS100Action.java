@@ -31,7 +31,7 @@ import ch.elexis.data.Patient;
 import ch.elexis.data.Query;
 
 public class AfinionAS100Action extends Action implements ComPortListener {
-	
+
 	AfinionConnection _ctrl;
 	Labor _myLab;
 	Thread msgDialogThread;
@@ -43,9 +43,9 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 	boolean background;
 	int debugRecord = 0; // test only!! for production must be 0!
 	String simulate = null; // "C:\\Temp\\Afinion\\afinion.log"; // declare filename to the log for
-	
+
 	// test only!! for production must be null!
-	
+
 	// "c:/temp/afinion/test.log"; oder null
 	// Anweisung zum Logfile:
 	// Wenn das Häckchen "Logging" in der Konfiguration eingeschaltet ist, werden die empfangenen
@@ -61,25 +61,25 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 	// Zeichen löschen (Ausschneiden). Beim speichern sollte es dann i.O. sein.
 	// Kontrolle: Die Dateigrösse sollte 2568 Bytes sein (immer 10 Resultate à 256 Bytes plus 8
 	// Bytes footer)
-	
+
 	public AfinionAS100Action(){
-		super(Messages.getString("AfinionAS100Action.ButtonName"), AS_CHECK_BOX); //$NON-NLS-1$
-		setToolTipText(Messages.getString("AfinionAS100Action.ToolTip")); //$NON-NLS-1$
+		super(Messages.AfinionAS100Action_ButtonName, AS_CHECK_BOX); //$NON-NLS-1$
+		setToolTipText(Messages.AfinionAS100Action_ToolTip); //$NON-NLS-1$
 		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("ch.elexis.connect.afinion", //$NON-NLS-1$
 			"icons/afinion.png")); //$NON-NLS-1$
 	}
-	
+
 	private void initConnection(){
 		if (_ctrl != null && _ctrl.isOpen()) {
 			_ctrl.close();
 		}
 		_ctrl =
-			new AfinionConnection(Messages.getString("AfinionAS100Action.ConnectionName"), //$NON-NLS-1$
+			new AfinionConnection(Messages.AfinionAS100Action_ConnectionName, //$NON-NLS-1$
 				CoreHub.localCfg.get(Preferences.PORT,
-					Messages.getString("AfinionAS100Action.DefaultPort")), CoreHub.localCfg.get( //$NON-NLS-1$
-					Preferences.PARAMS, Messages.getString("AfinionAS100Action.DefaultParams")), //$NON-NLS-1$
+					Messages.AfinionAS100Action_DefaultPort), CoreHub.localCfg.get( //$NON-NLS-1$
+					Preferences.PARAMS, Messages.AfinionAS100Action_DefaultParams), //$NON-NLS-1$
 				this);
-		
+
 		Calendar cal = new GregorianCalendar();
 		if (debugRecord != 0) {
 			SWTHelper.showInfo("Debugging!!!", "Record " + debugRecord); //$NON-NLS-2$
@@ -90,23 +90,23 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		_ctrl.setCurrentDate(cal);
-		
+
 		if (CoreHub.localCfg.get(Preferences.LOG, "n").equalsIgnoreCase("y")) { //$NON-NLS-1$ //$NON-NLS-2$
 			try {
 				_rs232log = new Logger(System.getProperty("user.home") + File.separator + "elexis" //$NON-NLS-1$ //$NON-NLS-2$
 					+ File.separator + "afinion.log"); //$NON-NLS-1$
 			} catch (FileNotFoundException e) {
-				SWTHelper.showError(Messages.getString("AfinionAS100Action.LogError.Title"), //$NON-NLS-1$
-					Messages.getString("AfinionAS100Action.LogError.Text")); //$NON-NLS-1$
+				SWTHelper.showError(Messages.AfinionAS100Action_LogError_Title, //$NON-NLS-1$
+					Messages.AfinionAS100Action_LogError_Text); //$NON-NLS-1$
 				_rs232log = new Logger();
 			}
 		} else {
 			_rs232log = new Logger(false);
 		}
-		
+
 		background = CoreHub.localCfg.get(Preferences.BACKGROUND, "n").equalsIgnoreCase("y");
 	}
-	
+
 	@Override
 	public void run(){
 		if (isChecked()) {
@@ -117,7 +117,7 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 				if (msg == null) {
 					String timeoutStr =
 						CoreHub.localCfg.get(Preferences.TIMEOUT,
-							Messages.getString("AfinionAS100Action.DefaultTimeout")); //$NON-NLS-1$
+							Messages.AfinionAS100Action_DefaultTimeout); //$NON-NLS-1$
 					int timeout = 20;
 					try {
 						timeout = Integer.parseInt(timeoutStr);
@@ -127,12 +127,12 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 					_ctrl
 						.awaitFrame(
 							UiDesk.getTopShell(),
-							Messages.getString("AfinionAS100Action.WaitMsg"), 1, 4, 0, timeout, background, false); //$NON-NLS-1$
+							Messages.AfinionAS100Action_WaitMsg, 1, 4, 0, timeout, background, false); //$NON-NLS-1$
 					return;
 				} else {
 					_rs232log.log("Error"); //$NON-NLS-1$
 					SWTHelper.showError(
-						Messages.getString("AfinionAS100Action.RS232.Error.Title"), msg); //$NON-NLS-1$
+						Messages.AfinionAS100Action_RS232_Error_Title, msg); //$NON-NLS-1$
 				}
 			} else {
 				SWTHelper.showInfo("Simulating!!!", simulate);
@@ -150,7 +150,7 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 						}
 						test = inputStream.read();
 					}
-					
+
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -170,16 +170,17 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 		setChecked(false);
 		_rs232log.logEnd();
 	}
-	
+
+	@Override
 	public void gotBreak(final AbstractConnection connection){
 		connection.close();
 		setChecked(false);
 		_rs232log.log("Break"); //$NON-NLS-1$
 		_rs232log.logEnd();
-		SWTHelper.showError(Messages.getString("AfinionAS100Action.RS232.Break.Title"), Messages //$NON-NLS-1$
-			.getString("AfinionAS100Action.RS232.Break.Text")); //$NON-NLS-1$
+		SWTHelper.showError(Messages.AfinionAS100Action_RS232_Break_Title,
+			Messages.AfinionAS100Action_RS232_Break_Text);
 	}
-	
+
 	/**
 	 * Liest Bytes aus einem Bytearray
 	 */
@@ -190,29 +191,30 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 		}
 		return retVal;
 	}
-	
+
 	/**
 	 * Einzelner Messwert wird verarbeitet
-	 * 
+	 *
 	 * @param probe
 	 */
 	private void processRecord(final Record record){
 		UiDesk.getDisplay().syncExec(new Runnable() {
-			
+
+			@Override
 			public void run(){
 				selectedPatient = ElexisEventDispatcher.getSelectedPatient();
 				Patient probePat = null;
 				String vorname = null;
 				String name = null;
 				String patientElexisStr =
-					Messages.getString("AfinionAS100Action.UnknownPatientHeaderString");
+					Messages.AfinionAS100Action_UnknownPatientHeaderString;
 				String patientDeviceStr = record.getId();
 				Long patId = null;
-				
+
 				if (patientDeviceStr != null) {
-					
+
 					// Suchkriterium für Patientenzuordnung
-					Query<Patient> patQuery = new Query<Patient>(Patient.class);
+					Query<Patient> patQuery = new Query<>(Patient.class);
 					if (patientDeviceStr != null && patientDeviceStr.length() > 0) {
 						String[] parts = patientDeviceStr.split(","); //$NON-NLS-1$
 						if (parts.length > 1) {
@@ -221,7 +223,7 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 							} catch (NumberFormatException e) {
 								// Do nothing
 							}
-							
+
 							if (patId != null) { // PatId, Name
 								name = getFirstUpper(parts[1]);
 							} else { // Name, Vorname
@@ -239,11 +241,11 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 								name = getFirstUpper(patientDeviceStr);
 							}
 						}
-						
+
 						if (patId != null) {
 							patQuery.add(Patient.FLD_PATID, "=", patId.toString()); //$NON-NLS-1$
 						}
-						
+
 						if (name != null && name.length() > 0) {
 							patQuery.add(Patient.FLD_NAME, "like", name + "%"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
@@ -251,7 +253,7 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 							patQuery.add(Patient.FLD_FIRSTNAME, "like", vorname + "%"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						List<Patient> patientList = patQuery.execute();
-						
+
 						if (patientList.size() == 1) {
 							probePat = patientList.get(0);
 							patientDeviceStr = record.getId();
@@ -259,9 +261,9 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 						}
 					}
 				}
-				
+
 				if ((patientDeviceStr == null) || (patientDeviceStr.equals(""))) {
-					patientDeviceStr = Messages.getString("AfinionAS100Action.NoPatientInfo");
+					patientDeviceStr = Messages.AfinionAS100Action_NoPatientInfo;
 				}
 				String warning = "";
 				// Gemäss Mail von Frau Rytz (Axis-Shield) vom 3.8.09: Anstelle der Warnung soll der
@@ -269,16 +271,16 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 				// oder >max angezeigt werden
 				// Wurde in SubRecordPart.getResultStr implementiert
 				// if (record.isOutOfRange()) {
-				// warning = Messages.getString("AfinionAS100Action.ValueOutOfRangeWarning");
+				// warning = Messages.AfinionAS100Action_ValueOutOfRangeWarning;
 				// }
 				String text =
 					MessageFormat.format(
-						Messages.getString("AfinionAS100Action.ValueInfoMsg"), patientDeviceStr, patientElexisStr, record.getRunNr(), record //$NON-NLS-1$
+						Messages.AfinionAS100Action_ValueInfoMsg, patientDeviceStr, patientElexisStr, record.getRunNr(), record //$NON-NLS-1$
 							.getText(), warning);
-				
+
 				boolean ok =
 					MessageDialog.openConfirm(UiDesk.getTopShell(),
-						Messages.getString("AfinionAS100Action.DeviceName"), text); //$NON-NLS-1$
+						Messages.AfinionAS100Action_DeviceName, text); //$NON-NLS-1$
 				if (ok) {
 					boolean showSelectionDialog = false;
 					if (probePat != null) {
@@ -286,26 +288,27 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 					} else {
 						showSelectionDialog = true;
 					}
-					
+
 					if (showSelectionDialog) {
 						UiDesk.getDisplay().syncExec(new Runnable() {
+							@Override
 							public void run(){
 								// TODO: Filter vorname/name in KontaktSelektor einbauen
 								KontaktSelektor ksl =
 									new KontaktSelektor(
 										Hub.getActiveShell(),
 										Patient.class,
-										Messages.getString("AfinionAS100Action.Patient.Title"), //$NON-NLS-1$
-										Messages.getString("AfinionAS100Action.Patient.Text"), Patient.DEFAULT_SORT); //$NON-NLS-1$
+										Messages.AfinionAS100Action_Patient_Title,
+										Messages.AfinionAS100Action_Patient_Text, Patient.DEFAULT_SORT); //$NON-NLS-1$
 								ksl.create();
 								ksl.getShell().setText(
-									Messages.getString("AfinionAS100Action.Patient.Title")); //$NON-NLS-1$
+									Messages.AfinionAS100Action_Patient_Title);
 								if (ksl.open() == org.eclipse.jface.dialogs.Dialog.OK) {
 									selectedPatient = (Patient) ksl.getSelection();
 								} else {
 									selectedPatient = null;
 								}
-								
+
 							}
 						});
 					}
@@ -314,12 +317,11 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 							record.write(selectedPatient);
 						} catch (PackageException e) {
 							SWTHelper.showError(
-								Messages.getString("AfinionAS100Action.ProbeError.Title"), e //$NON-NLS-1$
-									.getMessage());
+								Messages.AfinionAS100Action_ProbeError_Title, e.getMessage());
 						}
 					} else {
-						SWTHelper.showError(Messages.getString("AfinionAS100Action.Patient.Title"), //$NON-NLS-1$
-							Messages.getString("AfinionAS100Action.NoPatientSelectedMsg")); //$NON-NLS-1$
+						SWTHelper.showError(Messages.AfinionAS100Action_Patient_Title, //$NON-NLS-1$
+							Messages.AfinionAS100Action_NoPatientSelectedMsg); //$NON-NLS-1$
 					}
 					_rs232log.log("Saved"); //$NON-NLS-1$
 					ElexisEventDispatcher.reload(LabItem.class);
@@ -327,15 +329,16 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 			}
 		});
 	}
-	
+
 	/**
 	 * Messagedaten von Afinion wurden gelesen
 	 */
+	@Override
 	public void gotData(final AbstractConnection connection, final byte[] data){
 		if (_rs232log != null) {
 			_rs232log.logRX(new String(data));
 		}
-		
+
 		// Record lesen
 		int pos = 0;
 		int i = 0;
@@ -366,7 +369,7 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 			pos += 256;
 			i++;
 		}
-		
+
 		if (validRecords == 10) { // Read next 10 records
 			Calendar cal = lastRecord.getCalendar();
 			cal.add(Calendar.SECOND, 1);
@@ -380,43 +383,46 @@ public class AfinionAS100Action extends Action implements ComPortListener {
 				_ctrl.close();
 			}
 			setChecked(false);
-			
+
 			if (lastRecord != null) {
 				processRecord(lastRecord);
 			} else {
 				SWTHelper
 					.showInfo(
-						Messages.getString("AfinionAS100Action.DeviceName"), Messages.getString("AfinionAS100Action.NoValuesMsg")); //$NON-NLS-2$
+						Messages.AfinionAS100Action_DeviceName, Messages.AfinionAS100Action_NoValuesMsg); //$NON-NLS-2$
 			}
-			
+
 			_rs232log.log("Saved"); //$NON-NLS-1$
 			ElexisEventDispatcher.reload(LabItem.class);
 		}
 	}
-	
+
+	@Override
 	public void closed(){
 		_ctrl.close();
 		_rs232log.log("Closed"); //$NON-NLS-1$
 		setChecked(false);
 		_rs232log.logEnd();
 	}
-	
+
+	@Override
 	public void cancelled(){
 		_ctrl.close();
 		_rs232log.log("Cancelled"); //$NON-NLS-1$
 		setChecked(false);
 		_rs232log.logEnd();
 	}
-	
+
+	@Override
 	public void timeout(){
 		_ctrl.close();
 		_rs232log.log("Timeout"); //$NON-NLS-1$
-		SWTHelper.showError(Messages.getString("AfinionAS100Action.RS232.Timeout.Title"), Messages //$NON-NLS-1$
-			.getString("AfinionAS100Action.RS232.Timeout.Text")); //$NON-NLS-1$
+		SWTHelper.showError(Messages.AfinionAS100Action_RS232_Timeout_Title,
+			Messages.AfinionAS100Action_RS232_Timeout_Text);
 		setChecked(false);
 		_rs232log.logEnd();
 	}
-	
+
 	/**
 	 * Erstes Zeichen wird Uppercase gemacht
 	 */

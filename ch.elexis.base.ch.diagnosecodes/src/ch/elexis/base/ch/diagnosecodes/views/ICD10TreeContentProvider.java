@@ -8,7 +8,7 @@
  * Contributors:
  *    G. Weirich - initial implementation
  *    M. Descher / MEDEVIT - adaption
- *    
+ *
  *******************************************************************************/
 
 package ch.elexis.base.ch.diagnosecodes.views;
@@ -31,16 +31,16 @@ import ch.elexis.core.ui.util.viewers.ViewerConfigurer.ICommonViewerContentProvi
 
 /**
  * ContentProvider, der einen Tree füllen kann. Datenquelle muss ein TreeLoader sein.
- * 
+ *
  * @author Gerry
  * @author MEDEVIT - copied from original {@link TreeContentProvider}, adapted for ICD10
- * 
+ *
  */
 public class ICD10TreeContentProvider implements ITreeContentProvider, BackgroundJobListener,
 		ICommonViewerContentProvider {
 	ICD10LazyTreeLoader job;
 	CommonViewer viewer;
-	
+
 	public ICD10TreeContentProvider(CommonViewer v, ICD10LazyTreeLoader loader){
 		job = loader;
 		viewer = v;
@@ -49,7 +49,8 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 		}
 		job.addListener(this);
 	}
-	
+
+	@Override
 	@SuppressWarnings("unchecked")//$NON-NLS-1$
 	public Object[] getChildren(Object element){
 		if (element instanceof ch.rgw.tools.Tree) {
@@ -58,7 +59,8 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 		}
 		return null;
 	}
-	
+
+	@Override
 	@SuppressWarnings("unchecked")//$NON-NLS-1$
 	public Object getParent(Object element){
 		if (element instanceof ch.rgw.tools.Tree) {
@@ -67,7 +69,8 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 		}
 		return null;
 	}
-	
+
+	@Override
 	@SuppressWarnings("unchecked")//$NON-NLS-1$
 	public boolean hasChildren(Object element){
 		if (element instanceof ch.rgw.tools.Tree) {
@@ -76,7 +79,8 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 		}
 		return false;
 	}
-	
+
+	@Override
 	@SuppressWarnings("unchecked")//$NON-NLS-1$
 	public Object[] getElements(Object inputElement){
 		ch.rgw.tools.Tree result = (ch.rgw.tools.Tree) job.getData();
@@ -95,32 +99,38 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 			Collection c = result.getChildren();
 			return c.toArray();
 		}
-		
+
 	}
-	
+
+	@Override
 	public void startListening(){
 		viewer.getConfigurer().getControlFieldProvider().addChangeListener(this);
 	}
-	
+
+	@Override
 	public void stopListening(){
 		viewer.getConfigurer().getControlFieldProvider().removeChangeListener(this);
 	}
-	
+
+	@Override
 	public void dispose(){
 		job.removeListener(this);
 	}
-	
+
+	@Override
 	public void inputChanged(Viewer pViewer, Object oldInput, Object newInput){
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
+	@Override
 	public void jobFinished(BackgroundJob j){
 		// int size=((Object[])j.getData()).length;
 		viewer.notify(CommonViewer.Message.update);
-		
+
 	}
-	
+
+	@Override
 	public void changed(HashMap<String, String> vals){
 		job.setVals(vals);
 		if (viewer.getConfigurer().getControlFieldProvider().isEmpty()) {
@@ -132,16 +142,18 @@ public class ICD10TreeContentProvider implements ITreeContentProvider, Backgroun
 		job.invalidate();
 		viewer.notify(CommonViewer.Message.update);
 	}
-	
+
+	@Override
 	public void reorder(String field){
 		job.invalidate();
-		
+
 	}
-	
+
+	@Override
 	public void selected(){
 		// nothing to do
 	}
-	
+
 	@Override
 	public void init(){
 		// TODO Auto-generated method stub

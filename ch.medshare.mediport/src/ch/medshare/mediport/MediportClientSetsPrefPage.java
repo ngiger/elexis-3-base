@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    G. Weirich - initial implementation
- *    
+ *
  *******************************************************************************/
 package ch.medshare.mediport;
 
@@ -36,11 +36,11 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 
 import ch.elexis.core.data.activator.CoreHub;
+import ch.elexis.core.ui.util.Log;
+import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.data.Mandant;
 import ch.elexis.data.Query;
 import ch.elexis.tarmedprefs.TarmedRequirements;
-import ch.elexis.core.ui.util.Log;
-import ch.elexis.core.ui.util.SWTHelper;
 import ch.medshare.awt.Desktop;
 import ch.medshare.mediport.config.Client;
 import ch.medshare.mediport.config.ClientParam;
@@ -52,57 +52,57 @@ import ch.medshare.swt.widgets.FileText;
 import ch.rgw.tools.ExHandler;
 
 public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
-	
+
 	String prefsKey;
-	
+
 	Combo cbMandant;
-	
+
 	// Client Felder
 	Group clientComp;
-	
+
 	Combo cbMKey;
-	
+
 	Text txtSenderEan;
-	
+
 	Button cxWieMandant;
-	
+
 	DirectoryText txtSendDir;
-	
+
 	DirectoryText txtReceiveDir;
-	
+
 	DirectoryText txtReceiveTestDir;
-	
+
 	DirectoryText txtErrorDir;
-	
+
 	DirectoryText txtDocStatDir;
-	
+
 	FileText txtPartnerFile;
-	
+
 	// Param Felder
 	Group paramComp;
-	
+
 	Combo cbNKey;
-	
+
 	Text txtName;
-	
+
 	DirectoryText txtClientDir;
-	
+
 	Combo cbDocAttr;
-	
+
 	Combo cbDocPrinted;
-	
+
 	Combo cbDistType;
-	
+
 	Combo cbPrintLanguage;
-	
+
 	Text txtTrustCenterEAN;
-	
+
 	Integer currentClientNum;
-	
+
 	Integer currentParamNum;
-	
-	Map<String, Mandant> mandantMap = new Hashtable<String, Mandant>();
-	
+
+	Map<String, Mandant> mandantMap = new Hashtable<>();
+
 	private Client mapClientValues(Client mappedClient){
 		if (mappedClient == null) {
 			return null;
@@ -114,34 +114,34 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		mappedClient.setError_dir(txtErrorDir.getText());
 		mappedClient.setPartner_file(txtPartnerFile.getText());
 		mappedClient.setDocstat_dir(txtDocStatDir.getText());
-		
+
 		return mappedClient;
 	}
-	
+
 	private ClientParam mapParamValues(ClientParam mappedParam){
 		if (mappedParam == null) {
 			return null;
 		}
 		mappedParam.setName(txtName.getText());
 		mappedParam.setDir(txtClientDir.getText());
-		
+
 		String selDocAttr = cbDocAttr.getItem(cbDocAttr.getSelectionIndex());
 		mappedParam.setDocattr(selDocAttr);
-		
+
 		String selDocPrinted = cbDocPrinted.getItem(cbDocPrinted.getSelectionIndex());
 		if (LBL_DOC_PRINT_COPY.equals(selDocPrinted)) {
 			mappedParam.setDocprinted(ConfigKeys.FALSE);
 		} else {
 			mappedParam.setDocprinted(ConfigKeys.TRUE);
 		}
-		
+
 		String selDistType = cbDistType.getItem(cbDistType.getSelectionIndex());
 		if (LBL_DIST_TYPE_A.equals(selDistType)) {
 			mappedParam.setDisttype("1"); //$NON-NLS-1$
 		} else {
 			mappedParam.setDisttype("0"); //$NON-NLS-1$
 		}
-		
+
 		String selLanguage = cbPrintLanguage.getItem(cbPrintLanguage.getSelectionIndex());
 		if (LBL_LANGUAGE_F.equals(selLanguage)) {
 			mappedParam.setPrintlanguage(ConfigKeys.FRENCH);
@@ -150,16 +150,16 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		} else {
 			mappedParam.setPrintlanguage(ConfigKeys.GERMAN);
 		}
-		
+
 		mappedParam.setTrustcenterean(txtTrustCenterEAN.getText());
-		
+
 		return mappedParam;
 	}
-	
+
 	private Mandant getSelectedMandant(){
 		return this.mandantMap.get(cbMandant.getText());
 	}
-	
+
 	private Integer getSelectedNum(Combo cbKey){
 		Integer key = null;
 		String keyStr = cbKey.getText();
@@ -174,15 +174,15 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		}
 		return key;
 	}
-	
+
 	private Integer getSelectedClientNum(){
 		return getSelectedNum(cbMKey);
 	}
-	
+
 	private Integer getSelectedParamNum(){
 		return getSelectedNum(cbNKey);
 	}
-	
+
 	private void fillMKey(Integer clientNum){
 		String clientNumStr = null;
 		if (clientNum != null) {
@@ -193,7 +193,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 				clientNum = null;
 			}
 		}
-		
+
 		cbMKey.removeAll();
 		cbMKey.add(LBL_NEW_KEY);
 		for (String key : getFreeClientKeys(props, getSelectedMandant(), mandantMap.values())) {
@@ -212,13 +212,13 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		}
 		this.currentClientNum = getSelectedClientNum();
 	}
-	
+
 	private void fillNKey(Client client, Integer paramNum){
 		String paramNumStr = null;
 		if (paramNum != null) {
 			paramNumStr = paramNum.toString();
 		}
-		
+
 		cbNKey.removeAll();
 		cbNKey.add(LBL_NEW_KEY);
 		if (client != null) {
@@ -239,7 +239,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		}
 		this.currentParamNum = getSelectedParamNum();
 	}
-	
+
 	private void fillClient(Mandant mandant, Integer clientNum){
 		Client client = props.getClient(clientNum);
 		if (client == null) {
@@ -248,9 +248,9 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		if ((client.getEan() == null || client.getEan().length() == 0) && mandant != null) {
 			client.setEan(TarmedRequirements.getEAN(mandant));
 		}
-		
+
 		fillMKey(clientNum);
-		
+
 		String mandantEan = TarmedRequirements.getEAN(mandant);
 		String senderEan = client.getEan();
 		if (senderEan == null && mandantEan != null) {
@@ -260,31 +260,31 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		cxWieMandant.setSelection((mandantEan == null && senderEan == null)
 			|| (senderEan!=null) && senderEan.equals(mandantEan));
 		txtSenderEan.setEnabled(!cxWieMandant.getSelection());
-		
+
 		txtSendDir.setText(client.getSend_dir());
 		txtReceiveDir.setText(client.getReceive_dir());
 		txtReceiveTestDir.setText(client.getReceivetest_dir());
 		txtErrorDir.setText(client.getError_dir());
 		txtDocStatDir.setText(client.getDocstat_dir());
 		txtPartnerFile.setText(client.getPartner_file());
-		
+
 		Integer firstParamKey = null;
 		if (client.getParamKeys().size() > 0) {
 			firstParamKey = client.getParamKeys().get(0);
 		}
 		fillParam(clientNum, firstParamKey);
 	}
-	
+
 	private void fillParam(Integer clientNum, Integer paramNum){
 		Client client = props.getClient(clientNum);
 		ClientParam param =
-			new ClientParam(Messages.getString("MediportClientSetsPrefPage.default.paramName")); //$NON-NLS-1$
+			new ClientParam(Messages.MediportClientSetsPrefPage_default_paramName); //$NON-NLS-1$
 		if (client != null && paramNum != null) {
 			param = client.getParam(paramNum);
 		}
-		
+
 		fillNKey(client, paramNum);
-		
+
 		txtName.setText(param.getName());
 		txtClientDir.setText(param.getDir());
 		cbDocAttr.setText(param.getDocattr());
@@ -293,13 +293,13 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		} else {
 			cbDocPrinted.select(1);
 		}
-		
+
 		if ("0".equals(param.getDisttype())) { // B-Post //$NON-NLS-1$
 			cbDistType.select(0);
 		} else {
 			cbDistType.select(1);
 		}
-		
+
 		if (ConfigKeys.FRENCH.equals(param.getPrintlanguage())) {
 			cbPrintLanguage.select(1);
 		} else if (ConfigKeys.ITALIAN.equals(param.getPrintlanguage())) {
@@ -307,10 +307,10 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		} else {
 			cbPrintLanguage.select(0);
 		}
-		
+
 		txtTrustCenterEAN.setText(param.getTrustcenterean());
 	}
-	
+
 	private void writeClient(){
 		Integer clientNum = this.currentClientNum;
 		Client client = null;
@@ -326,7 +326,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		putPrefString(prefsKey, String.valueOf(clientNum));
 		storePrefs();
 	}
-	
+
 	private void writeParam(){
 		Integer clientNum = this.currentClientNum;
 		ClientParam param = new ClientParam(""); //$NON-NLS-1$
@@ -340,35 +340,35 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 				fillNKey(client, paramNum);
 			}
 		}
-		
+
 		mapParamValues(param);
 	}
-	
+
 	private boolean storeParam(){
 		writeParam();
-		
+
 		try {
 			props.store();
 		} catch (IOException ex) {
 			ExHandler.handle(ex);
-			MessageDialog.openError(getShell(), Messages
-				.getString("MediportClientSetsPrefPage.error.title.saveConfig"), ex //$NON-NLS-1$
+			MessageDialog.openError(getShell(), Messages.MediportClientSetsPrefPage_error_title_saveConfig, ex
 				.getMessage());
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
+	@Override
 	protected boolean storeAll(){
 		if (props != null) {
 			writeClient();
-			
+
 			return storeParam();
 		}
 		return true;
 	}
-	
+
 	private void clientChanged(){
 		// Zuerst aktuelle Werte speichern
 		if (this.currentClientNum != null) {
@@ -378,7 +378,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 				storeAll();
 			}
 		}
-		
+
 		Integer clientNum = getSelectedClientNum();
 		Mandant mandant = getSelectedMandant();
 		prefsKey = MediPortHelper.getMandantPrefix(mandant.getLabel());
@@ -386,10 +386,10 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		if (numString != null && numString.length() > 0) {
 			clientNum = Integer.parseInt(numString);
 		}
-		
+
 		fillClient(mandant, clientNum);
 	}
-	
+
 	private void mKeyChanged(){
 		// Zuerst aktuelle Werte speichern
 		if (this.currentClientNum != null) {
@@ -402,7 +402,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 		this.currentClientNum = getSelectedClientNum();
 		fillClient(getSelectedMandant(), this.currentClientNum);
 	}
-	
+
 	private void nKeyChanged(){
 		// Zuerst aktuelle Werte speichern
 		Integer clientNum = getSelectedClientNum();
@@ -414,15 +414,15 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 				storeAll();
 			}
 		}
-		
+
 		this.currentParamNum = getSelectedParamNum();
 		fillParam(clientNum, this.currentParamNum);
 	}
-	
+
 	private List<String> getFreeClientKeys(MPCProperties props, Mandant currentMandant,
 		Collection<Mandant> mandanten){
 		// Zugeordnete Mandanten lesen
-		List<String> allocatedKeyList = new Vector<String>();
+		List<String> allocatedKeyList = new Vector<>();
 		for (Mandant m : mandanten) {
 			if (!m.equals(currentMandant)) {
 				String key = getPrefString(MediPortHelper.getMandantPrefix(m.getLabel()));
@@ -431,17 +431,17 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 				}
 			}
 		}
-		List<String> retList = new Vector<String>();
+		List<String> retList = new Vector<>();
 		for (Integer key : props.getClientKeys()) {
 			String keyStr = key.toString();
 			if (!allocatedKeyList.contains(keyStr)) {
 				retList.add(keyStr);
 			}
 		}
-		
+
 		return retList;
 	}
-	
+
 	@Override
 	protected Control createContents(Composite parent){
 		if (props != null) {
@@ -449,128 +449,119 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 			comp.setLayout(new GridLayout(2, false));
 			cbMandant = new Combo(comp, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.FILL);
 			cbMandant.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			// Client
 			clientComp = new Group(comp, SWT.NONE);
-			clientComp.setText(Messages.getString("MediportClientSetsPrefPage.lbl.title.config")); //$NON-NLS-1$
+			clientComp.setText(Messages.MediportClientSetsPrefPage_lbl_title_config); //$NON-NLS-1$
 			clientComp.setLayout(new GridLayout(3, false));
 			clientComp.setLayoutData(SWTHelper.getFillGridData(3, true, 1, true));
-			
+
 			Label lblMKey = new Label(clientComp, SWT.NONE);
-			lblMKey.setText(Messages.getString("MediportClientSetsPrefPage.lbl.mKey")); //$NON-NLS-1$
+			lblMKey.setText(Messages.MediportClientSetsPrefPage_lbl_mKey); //$NON-NLS-1$
 			cbMKey = new Combo(clientComp, SWT.DROP_DOWN | SWT.READ_ONLY);
 			cbMKey.setLayoutData(SWTHelper.getFillGridData(2, false, 1, false));
-			
+
 			Label lblEan = new Label(clientComp, SWT.NONE);
-			lblEan.setText(Messages.getString("MediportClientSetsPrefPage.lbl.SenderEAN")); //$NON-NLS-1$
+			lblEan.setText(Messages.MediportClientSetsPrefPage_lbl_SenderEAN); //$NON-NLS-1$
 			txtSenderEan = new Text(clientComp, SWT.BORDER);
 			txtSenderEan.setEnabled(false);
 			txtSenderEan.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			cxWieMandant = new Button(clientComp, SWT.CHECK);
-			cxWieMandant.setText(Messages.getString("MediportClientSetsPrefPage.lbl.WieMandant")); //$NON-NLS-1$
-			
+			cxWieMandant.setText(Messages.MediportClientSetsPrefPage_lbl_WieMandant); //$NON-NLS-1$
+
 			Label lblSendDir = new Label(clientComp, SWT.NONE);
-			lblSendDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Sendeverzeichnis")); //$NON-NLS-1$
+			lblSendDir.setText(Messages.MediportClientSetsPrefPage_lbl_Sendeverzeichnis);
 			txtSendDir = new DirectoryText(clientComp, SWT.BORDER);
 			txtSendDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblReceiveDir = new Label(clientComp, SWT.NONE);
-			lblReceiveDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Empfangsverzeichnis")); //$NON-NLS-1$
+			lblReceiveDir.setText(Messages.MediportClientSetsPrefPage_lbl_Empfangsverzeichnis);
 			txtReceiveDir = new DirectoryText(clientComp, SWT.BORDER);
 			txtReceiveDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblReceiveTestDir = new Label(clientComp, SWT.NONE);
-			lblReceiveTestDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.EmpfangsverzeichnisTest")); //$NON-NLS-1$
+			lblReceiveTestDir.setText(Messages.MediportClientSetsPrefPage_lbl_EmpfangsverzeichnisTest);
 			txtReceiveTestDir = new DirectoryText(clientComp, SWT.BORDER);
 			txtReceiveTestDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblErrorDir = new Label(clientComp, SWT.NONE);
-			lblErrorDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Fehlerverzeichnis")); //$NON-NLS-1$
+			lblErrorDir.setText(Messages.MediportClientSetsPrefPage_lbl_Fehlerverzeichnis);
 			txtErrorDir = new DirectoryText(clientComp, SWT.BORDER);
 			txtErrorDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblDocStatDir = new Label(clientComp, SWT.NONE);
-			lblDocStatDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.DokumentstatusVerzeichnis")); //$NON-NLS-1$
+			lblDocStatDir.setText(Messages.MediportClientSetsPrefPage_lbl_DokumentstatusVerzeichnis);
 			txtDocStatDir = new DirectoryText(clientComp, SWT.BORDER);
 			txtDocStatDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblPartnerFile = new Label(clientComp, SWT.NONE);
 			lblPartnerFile
-				.setText(Messages.getString("MediportClientSetsPrefPage.lbl.Partnerfile")); //$NON-NLS-1$
+				.setText(Messages.MediportClientSetsPrefPage_lbl_Partnerfile); //$NON-NLS-1$
 			txtPartnerFile = new FileText(clientComp, SWT.BORDER);
 			txtPartnerFile.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Button btnPartnerFile = new Button(clientComp, SWT.PUSH);
-			btnPartnerFile.setText(Messages
-				.getString("MediportClientSetsPrefPage.btn.PartnerinfoAnzeigen")); //$NON-NLS-1$
+			btnPartnerFile.setText(Messages.MediportClientSetsPrefPage_btn_PartnerinfoAnzeigen);
 			btnPartnerFile.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			// Parameter-Set
 			paramComp = new Group(clientComp, SWT.NONE);
-			paramComp.setText(Messages.getString("MediportClientSetsPrefPage.lbl.title.Parameter")); //$NON-NLS-1$
+			paramComp.setText(Messages.MediportClientSetsPrefPage_lbl_title_Parameter);
 			paramComp.setLayout(new GridLayout(3, false));
 			paramComp.setLayoutData(SWTHelper.getFillGridData(3, true, 1, true));
-			
+
 			Label lblNKey = new Label(paramComp, SWT.NONE);
-			lblNKey.setText(Messages.getString("MediportClientSetsPrefPage.lbl.nKey")); //$NON-NLS-1$
+			lblNKey.setText(Messages.MediportClientSetsPrefPage_lbl_nKey); //$NON-NLS-1$
 			cbNKey = new Combo(paramComp, SWT.DROP_DOWN | SWT.READ_ONLY);
 			cbNKey.setLayoutData(SWTHelper.getFillGridData(2, false, 1, false));
-			
+
 			Label lblParam = new Label(paramComp, SWT.NONE);
-			lblParam.setText(Messages.getString("MediportClientSetsPrefPage.lbl.Bezeichnung")); //$NON-NLS-1$
+			lblParam.setText(Messages.MediportClientSetsPrefPage_lbl_Bezeichnung); //$NON-NLS-1$
 			txtName = new Text(paramComp, SWT.BORDER);
 			txtName.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			Label lblClientDir = new Label(paramComp, SWT.NONE);
-			lblClientDir.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Ausgabeverzeichnis")); //$NON-NLS-1$
+			lblClientDir.setText(Messages.MediportClientSetsPrefPage_lbl_Ausgabeverzeichnis);
 			txtClientDir = new DirectoryText(paramComp, SWT.BORDER);
 			txtClientDir.setLayoutData(SWTHelper.getFillGridData(1, true, 1, false));
-			
+
 			Label lblDocAttr = new Label(paramComp, SWT.NONE);
-			lblDocAttr.setText(Messages.getString("MediportClientSetsPrefPage.lbl.Workflow")); //$NON-NLS-1$
+			lblDocAttr.setText(Messages.MediportClientSetsPrefPage_lbl_Workflow); //$NON-NLS-1$
 			cbDocAttr = new Combo(paramComp, SWT.BORDER | SWT.READ_ONLY);
 			cbDocAttr.add(TIER_PAYANT);
 			cbDocAttr.add(TIER_GARANT_MANUELL);
 			cbDocAttr.add(TIER_GARANT_DIRECT);
 			cbDocAttr.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			Label lblDocPrinted = new Label(paramComp, SWT.NONE);
-			lblDocPrinted.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Rechnungskopie")); //$NON-NLS-1$
+			lblDocPrinted.setText(Messages.MediportClientSetsPrefPage_lbl_Rechnungskopie);
 			cbDocPrinted = new Combo(paramComp, SWT.BORDER | SWT.READ_ONLY);
 			cbDocPrinted.add(LBL_DOC_NO_PRINT);
 			cbDocPrinted.add(LBL_DOC_PRINT_COPY);
 			cbDocPrinted.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			Label lblDistType = new Label(paramComp, SWT.NONE);
-			lblDistType.setText(Messages.getString("MediportClientSetsPrefPage.lbl.Versandart")); //$NON-NLS-1$
+			lblDistType.setText(Messages.MediportClientSetsPrefPage_lbl_Versandart); //$NON-NLS-1$
 			cbDistType = new Combo(paramComp, SWT.BORDER | SWT.READ_ONLY);
 			cbDistType.add(LBL_DIST_TYPE_B);
 			cbDistType.add(LBL_DIST_TYPE_A);
 			cbDistType.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			Label lblPrintLanguage = new Label(paramComp, SWT.NONE);
-			lblPrintLanguage.setText(Messages
-				.getString("MediportClientSetsPrefPage.lbl.Drucksprache")); //$NON-NLS-1$
+			lblPrintLanguage.setText(Messages.MediportClientSetsPrefPage_lbl_Drucksprache);
 			cbPrintLanguage = new Combo(paramComp, SWT.BORDER | SWT.READ_ONLY);
 			cbPrintLanguage.add(LBL_LANGUAGE_D);
 			cbPrintLanguage.add(LBL_LANGUAGE_F);
 			cbPrintLanguage.add(LBL_LANGUAGE_I);
 			cbPrintLanguage.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			Label lblTrustEan = new Label(paramComp, SWT.NONE);
 			lblTrustEan
-				.setText(Messages.getString("MediportClientSetsPrefPage.lbl.TrustcenterEAN")); //$NON-NLS-1$
+				.setText(Messages.MediportClientSetsPrefPage_lbl_TrustcenterEAN); //$NON-NLS-1$
 			txtTrustCenterEAN = new Text(paramComp, SWT.BORDER);
 			txtTrustCenterEAN.setLayoutData(SWTHelper.getFillGridData(2, true, 1, false));
-			
+
 			// Events
 			cbMandant.addSelectionListener(new SelectionAdapter() {
 				@Override
@@ -578,26 +569,29 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 					clientChanged();
 				}
 			});
-			
+
 			cbMKey.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e){
 					mKeyChanged();
 				}
 			});
-			
+
 			cxWieMandant.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e){
 					txtSenderEan.setEnabled(!cxWieMandant.getSelection());
 					txtSenderEan.setText(TarmedRequirements.getEAN(getSelectedMandant()));
 				}
 			});
-			
+
 			cbNKey.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e){
 					nKeyChanged();
 				}
 			});
-			
+
 			btnPartnerFile.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e){
@@ -609,14 +603,13 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 						MessageDialog
 							.openError(
 								getShell(),
-								Messages
-									.getString("MediportClientSetsPrefPage.error.msg.PartnerdateiOeffnen"), ex.getMessage()); //$NON-NLS-1$
+								Messages.MediportClientSetsPrefPage_error_msg_PartnerdateiOeffnen, ex.getMessage());
 					}
 				}
 			});
-			
+
 			// Data
-			Query<Mandant> qbe = new Query<Mandant>(Mandant.class);
+			Query<Mandant> qbe = new Query<>(Mandant.class);
 			List<Mandant> list = qbe.execute();
 			for (Mandant m : list) {
 				cbMandant.add(m.getLabel());
@@ -624,7 +617,7 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 			}
 			final String actMandantLabel = CoreHub.actMandant.getLabel();
 			cbMandant.setText(actMandantLabel);
-			
+
 			cxWieMandant.setSelection(true);
 			cbDocAttr.select(0);
 			cbDocPrinted.select(0);
@@ -637,32 +630,31 @@ public class MediportClientSetsPrefPage extends MediPortAbstractPrefPage {
 			} else {
 				cbPrintLanguage.select(0);
 			}
-			
+
 			clientChanged();
-			
+
 			return comp;
 		} else {
 			Composite form = new Composite(parent, SWT.NONE);
 			form.setLayoutData(SWTHelper.getFillGridData(1, true, 1, true));
 			form.setLayout(new FillLayout());
-			new Label(form, SWT.WRAP).setText(Messages
-				.getString("MediportClientSetsPrefPage.error.msg.missingConfiguration")); //$NON-NLS-1$
+			new Label(form, SWT.WRAP).setText(Messages.MediportClientSetsPrefPage_error_msg_missingConfiguration);
 			return form;
 		}
 	}
-	
+
 	@Override
 	protected void showReloadInfo(){
 		if (props != null) {
-			MessageDialog.openInformation(getShell(), Messages
-				.getString("MediportClientSetsPrefPage.info.title.MediPortCommunicator"), //$NON-NLS-1$
-				Messages.getString("MediportClientSetsPrefPage.info.reloadInfo1") //$NON-NLS-1$
-					+ Messages.getString("MediportClientSetsPrefPage.info.reloadInfo2")); //$NON-NLS-1$
+			MessageDialog.openInformation(getShell(), Messages.MediportClientSetsPrefPage_info_title_MediPortCommunicator,
+				Messages.MediportClientSetsPrefPage_info_reloadInfo1 //$NON-NLS-1$
+					+ Messages.MediportClientSetsPrefPage_info_reloadInfo2); //$NON-NLS-1$
 		}
 	}
-	
+
+	@Override
 	public void init(IWorkbench workbench){
-		setMessage(Messages.getString("MediportClientSetsPrefPage.message")); //$NON-NLS-1$
+		setMessage(Messages.MediportClientSetsPrefPage_message); //$NON-NLS-1$
 	}
-	
+
 }

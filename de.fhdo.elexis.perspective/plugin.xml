@@ -63,19 +63,19 @@
          <command
                commandId="de.fhdo.elexis.perspective.command.exportCmd"
                icon="icon://IMG_EXPORT"
-               label="%export.perspective"
+               label="%export_perspective"
                style="push">
          </command>
          <command
                commandId="de.fhdo.elexis.perspective.command.importCmd"
                icon="icon://IMG_IMPORT"
-               label="%import.perspective"
+               label="%import_perspective"
                style="push">
          </command>
          <command
                commandId="de.fhdo.elexis.perspective.command.deleteCmd"
                icon="icon://IMG_DELETE"
-               label="%delete.perspective"
+               label="%delete_perspective"
                style="push">
          </command>
       </menuContribution>

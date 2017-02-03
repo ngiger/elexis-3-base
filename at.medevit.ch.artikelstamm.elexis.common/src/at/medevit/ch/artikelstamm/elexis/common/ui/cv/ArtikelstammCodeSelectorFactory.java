@@ -137,10 +137,10 @@ public class ArtikelstammCodeSelectorFactory extends CodeSelectorFactory {
 		// the dropdown menu on the viewer
 		MenuManager menu = new MenuManager();
 		menu.add(new Action(
-			ch.elexis.core.ui.views.artikel.Messages.ArtikelContextMenu_propertiesAction) {
+			ch.elexis.core.ui.Messages.ArtikelContextMenu_propertiesAction) {
 			{
 				setImageDescriptor(Images.IMG_EDIT.getImageDescriptor());
-				setToolTipText(ch.elexis.core.ui.views.artikel.Messages.ArtikelContextMenu_propertiesTooltip);
+				setToolTipText(ch.elexis.core.ui.Messages.ArtikelContextMenu_propertiesTooltip);
 			}
 			
 			@Override

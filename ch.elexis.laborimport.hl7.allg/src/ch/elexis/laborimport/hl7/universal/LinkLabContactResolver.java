@@ -1,8 +1,8 @@
 package ch.elexis.laborimport.hl7.universal;
 
+import ch.elexis.core.ui.importer.div.Messages;
 import ch.elexis.core.ui.importer.div.importers.ILabContactResolver;
 import ch.elexis.core.ui.importer.div.importers.LabImportUtil;
-import ch.elexis.core.ui.importer.div.importers.Messages;
 import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.data.Labor;
 

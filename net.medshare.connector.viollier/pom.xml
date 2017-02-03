@@ -9,5 +9,25 @@
   <artifactId>net.medshare.connector.viollier</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
-  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.netcetera.trema</groupId>
+        <artifactId>trema-maven-plugin</artifactId>
+        <version>0.2.0</version>
+        <executions>
+          <execution>
+            <id>create_messages_properties</id>
+            <goals>
+              <goal>exportProperties</goal>
+            </goals>
+            <configuration>
+            <tremaFile>${project.basedir}/texts.trm</tremaFile>
+            <basename>${project.basedir}/src/net/medshare/connector/viollier/messages</basename>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>

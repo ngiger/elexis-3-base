@@ -29,16 +29,16 @@
       <command
             categoryId="ch.elexis.extdoc.commands.category"
             id="ch.elexis.extdoc.commands.rename"
-            name="%ch.elexis.extdoc.cmd.rename">
+            name="%ch_elexis_extdoc_cmd_rename">
       </command>
       <command
             categoryId="ch.elexis.extdoc.commands.category"
             id="ch.elexis.extdoc.commands.edit_properties"
-            name="%extdoc.commands.properties_cmd">
+            name="%extdoc_commands_properties_cmd">
       </command>
       <category
             id="ch.elexis.extdoc.commands.category"
-            name="%extdoc.commands.category">
+            name="%extdoc_commands_category">
       </category>
    </extension>
    <extension

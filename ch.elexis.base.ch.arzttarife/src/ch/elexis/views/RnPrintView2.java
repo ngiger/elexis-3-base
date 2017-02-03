@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    G. Weirich - initial implementation
- * 
+ *
  *******************************************************************************/
 package ch.elexis.views;
 
@@ -44,36 +44,36 @@ import ch.elexis.tarmed.printer.XML44Printer;
  * This is a pop-in replacement for RnPrintView. To avoid several problems around OpenOffice based
  * bills we keep things easier here. Thus this approach does not optimize printer access but rather
  * waits for each page to be printed before starting the next.
- * 
+ *
  * We also corrected several problems around the TrustCenter-system. Tokens are printed only on TG
  * bills and only if the mandator has a TC contract. Tokens are computed correctly now with the TC
  * number as identifier in TG bills and left as ESR in TP bills.
- * 
+ *
  * @author Gerry
- * 
+ *
  */
 public class RnPrintView2 extends ViewPart {
 	public static final String ID = "ch.elexis.arzttarife_ch.printview2";
-	
+
 	private static Logger logger = LoggerFactory.getLogger(RnPrintView2.class);
-	
+
 	TextContainer text;
-	
+
 	public RnPrintView2(){
-		
+
 	}
-	
+
 	@Override
 	public void createPartControl(final Composite parent){
 		text = new TextContainer(getViewSite());
 		text.getPlugin().createContainer(parent, new ITextPlugin.ICallback() {
-			
+
 			@Override
 			public void save(){
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public boolean saveAs(){
 				// TODO Auto-generated method stub
@@ -82,18 +82,18 @@ public class RnPrintView2 extends ViewPart {
 		});
 		text.getPlugin().setParameter(ITextPlugin.Parameter.NOUI);
 	}
-	
+
 	@Override
 	public void setFocus(){
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	/**
 	 * Druckt die Rechnung auf eine Vorlage, deren Ränder alle auf 0.5cm eingestellt sein müssen,
 	 * und die unterhalb von 170 mm leer ist. (Papier mit EZ-Schein wird erwartet) Zweite und
 	 * Folgeseiten müssen gem Tarmedrechnung formatiert sein.
-	 * 
+	 *
 	 * @param rn
 	 *            die Rechnung
 	 * @param saveFile
@@ -112,7 +112,7 @@ public class RnPrintView2 extends ViewPart {
 		}
 		// check if we have all req. text templates
 		initializeRequiredTemplates();
-		
+
 		// check if we are working with 4.0 or 4.4 tarmed xml
 		if (TarmedJaxbUtil.getXMLVersion(xmlRn).equals("4.0")) {
 			XML40Printer xmlPrinter = new XML40Printer(text);
@@ -123,15 +123,15 @@ public class RnPrintView2 extends ViewPart {
 			return xmlPrinter.doPrint(rn, xmlRn, rnType, saveFile, withESR, withForms, doVerify,
 				monitor);
 		} else {
-			
+
 			SWTHelper.showError("Fehler beim Drucken",
 				"Die Rechnung ist in keinem gültigen XML Format");
 			rn.addTrace(Rechnung.REJECTED, "XML Format");
 			return false;
 		}
-		
+
 	}
-	
+
 	private void initializeRequiredTemplates(){
 		if(!testTemplate(TarmedTemplateRequirement.TT_TARMED_S1)) {
 			initializeTemplate(TarmedTemplateRequirement.TT_TARMED_S1);
@@ -139,7 +139,7 @@ public class RnPrintView2 extends ViewPart {
 		if (!testTemplate(TarmedTemplateRequirement.TT_TARMED_S2)) {
 			initializeTemplate(TarmedTemplateRequirement.TT_TARMED_S2);
 		}
-		
+
 		if (!testTemplate(TarmedTemplateRequirement.TT_TARMED_44_S1)) {
 			initializeTemplate(TarmedTemplateRequirement.TT_TARMED_44_S1);
 		}
@@ -147,7 +147,7 @@ public class RnPrintView2 extends ViewPart {
 			initializeTemplate(TarmedTemplateRequirement.TT_TARMED_44_S2);
 		}
 	}
-	
+
 	private void initializeTemplate(String name){
 		String templateUrl = getTemplateUrl(name);
 		if(templateUrl != null) {
@@ -160,14 +160,14 @@ public class RnPrintView2 extends ViewPart {
 			}
 		}
 	}
-	
+
 	private byte[] downloadTempalte(String templateUrl){
 		BufferedInputStream in = null;
 		ByteArrayOutputStream bout = null;
 		try {
 			in = new BufferedInputStream(new URL(templateUrl).openStream());
 			bout = new ByteArrayOutputStream();
-			
+
 			final byte data[] = new byte[1024];
 			int count;
 			while ((count = in.read(data, 0, 1024)) != -1) {
@@ -183,7 +183,8 @@ public class RnPrintView2 extends ViewPart {
 					// ignore
 				}
 				try {
-					bout.close();
+					if (bout != null)
+						bout.close();
 				} catch (IOException e) {
 					// ignore
 				}
@@ -191,7 +192,7 @@ public class RnPrintView2 extends ViewPart {
 		}
 		return bout != null ? bout.toByteArray() : null;
 	}
-	
+
 	private String getTemplateUrl(String name){
 		if (isWord()) {
 			switch (name) {
@@ -216,20 +217,20 @@ public class RnPrintView2 extends ViewPart {
 				return "https://medelexis.ch/uploads/media/TR44_S1.odt";
 			case TarmedTemplateRequirement.TT_TARMED_44_S2:
 				return "https://medelexis.ch/uploads/media/TR44_S2.odt";
-				
+
 			default:
 				break;
 			}
 		}
 		return null;
 	}
-	
+
 	private boolean isWord(){
 		return text.getPlugin().getMimeType().equals(MimeTypeUtil.MIME_TYPE_MSWORD);
 	}
-	
+
 	private boolean testTemplate(String name){
-		Query<Brief> qbe = new Query<Brief>(Brief.class);
+		Query<Brief> qbe = new Query<>(Brief.class);
 		qbe.add(Brief.FLD_TYPE, Query.EQUALS, Brief.TEMPLATE);
 		qbe.and();
 		qbe.add(Brief.FLD_SUBJECT, Query.EQUALS, name);
