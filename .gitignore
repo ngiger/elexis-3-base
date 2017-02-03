@@ -8,3 +8,5 @@ rebel.xml
 bin/
 target/
 jetty.log
+messages*properties
+plugin*properties
