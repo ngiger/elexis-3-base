@@ -22,7 +22,7 @@
             </goals>
             <configuration>
             <tremaFile>${project.basedir}/texts.trm</tremaFile>
-            <basename>${project/basedir}/src/ch/elexis/base/ch/arzttarife/messages</basename>
+            <basename>${project.basedir}/src/ch/elexis/arzttarife_schweiz/messages</basename>
             </configuration>
           </execution>
         </executions>

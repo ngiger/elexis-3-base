@@ -93,13 +93,13 @@
 ><text key='Probe_ResultatMsg'
 ><context
 /><value lang='de' status='initial'
->Resultat der Probe zu klein\!</value
+>Resultat der Probe zu klein!</value
 ><value lang='fr' status='initial'
 >résultat de l&apos;analyse est trop bas</value
 ><value lang='it' status='initial'
->Resultat der Probe zu klein\!</value
+>Resultat der Probe zu klein!</value
 ><value lang='en' status='initial'
->Resultat der Probe zu klein\!</value
+>Resultat der Probe zu klein!</value
 ></text
 ><text key='ReflotronSprintAction_29'
 ><context

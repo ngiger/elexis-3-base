@@ -23,7 +23,7 @@
             </goals>
             <configuration>
             <tremaFile>${project.basedir}/texts.trm</tremaFile>
-            <basename>${project/basedir}/src/ch/elexis/buchhaltung/basis/messages/messages</basename>
+            <basename>${project.basedir}/src/ch/elexis/buchhaltung/basis/messages/messages</basename>
             </configuration>
           </execution>
         </executions>

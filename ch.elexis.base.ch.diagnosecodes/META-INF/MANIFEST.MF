@@ -15,4 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  ch.elexis.core;bundle-version="3.0.0",
  ch.elexis.core.data;bundle-version="3.0.0",
  ch.elexis.core.ui;bundle-version="3.1.0"
-Export-Package: ch.elexis.data
+Export-Package: ch.elexis.base.ch.diagnosecodes_schweiz,
+ ch.elexis.data

@@ -21,7 +21,7 @@
             </goals>
             <configuration>
             <tremaFile>${project.basedir}/texts.trm</tremaFile>
-            <basename>${project/basedir}/at/medevit/elexis/ehc.ui/messages</basename>
+            <basename>${project.basedir}/at/medevit/elexis/ehc.ui/messages</basename>
             </configuration>
           </execution>
         </executions>

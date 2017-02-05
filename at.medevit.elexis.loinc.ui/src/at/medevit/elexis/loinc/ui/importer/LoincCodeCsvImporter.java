@@ -24,8 +24,8 @@ import at.medevit.elexis.loinc.ui.Activator;
 import at.medevit.elexis.loinc.ui.LoincServiceComponent;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.data.status.ElexisStatus;
-import ch.elexis.core.ui.Messages;
 import ch.elexis.core.ui.util.ImporterPage;
+import ch.elexis.core.ui.util.Messages;
 import ch.elexis.core.ui.util.SWTHelper;
 
 public class LoincCodeCsvImporter extends ImporterPage {

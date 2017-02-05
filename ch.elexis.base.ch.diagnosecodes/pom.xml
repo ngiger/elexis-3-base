@@ -33,7 +33,7 @@
             </goals>
             <configuration>
             <tremaFile>${project.basedir}/texts.trm</tremaFile>
-            <basename>${project.basedir}/src/ch/elexis/base/ch/diagnosecodes/messages</basename>
+            <basename>${project.basedir}/src/ch/elexis/base/ch/diagnosecodes_schweiz/messages</basename>
             </configuration>
           </execution>
         </executions>

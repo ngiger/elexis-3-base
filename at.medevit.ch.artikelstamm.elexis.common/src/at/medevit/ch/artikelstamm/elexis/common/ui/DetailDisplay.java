@@ -42,10 +42,10 @@ import at.medevit.ch.artikelstamm.ui.DetailComposite;
 import ch.artikelstamm.elexis.common.ArtikelstammItem;
 import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
-import ch.elexis.core.ui.Messages;
 import ch.elexis.core.ui.UiDesk;
 import ch.elexis.core.ui.dialogs.KontaktSelektor;
 import ch.elexis.core.ui.views.IDetailDisplay;
+import ch.elexis.core.ui.views.artikel.Messages;
 import ch.elexis.data.Kontakt;
 import ch.elexis.data.PersistentObject;
 
