@@ -232,7 +232,8 @@ public class KonsListComposite {
 			loadingLabel.setVisible(false);
 			sashLeft.setVisible(konsultationen.size() > 0);
 			sashRight.setVisible(konsultationen.size() > 0);
-			if (actKons == null && (actKons = konsultationen.get(0).konsultation) != null) {
+			if (actKons == null && konsultationen.size() > 0 &&
+					(actKons = konsultationen.get(0).konsultation) != null) {
 				log.debug("refreshAllKons for " + widgetRows.size() + " setting actKons to " + actKons.getId());
 			}
 			refeshHyperLinks(actKons);

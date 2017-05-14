@@ -60,7 +60,7 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 			showAllConsultationsAction.isChecked());
 	}
 	private final ElexisUiEventListenerImpl eeli_pat =
-			new ElexisUiEventListenerImpl(Patient.class, ElexisEvent.EVENT_SELECTED  | ElexisEvent.EVENT_DESELECTED |
+			new ElexisUiEventListenerImpl(Patient.class, ElexisEvent.EVENT_SELECTED |
 				ElexisEvent.EVENT_RELOAD | ElexisEvent.EVENT_UPDATE) {
 
 				@Override
@@ -89,10 +89,6 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 				showAllChargesAction.setChecked(false);
 				showAllConsultationsAction.setChecked(false);
 				displaySelectedConsultation(newKons);
-
-			} else if (ev.getType() == ElexisEvent.EVENT_DESELECTED) {
-				log.debug("eeli_kons EVENT_DESELECTED null") ;
-				displaySelectedConsultation(null);
 			}
 		}
 	};
@@ -153,8 +149,6 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 
 	@Override
 	public void setFocus(){
-	// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -178,18 +172,10 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 		if (mode == true) {
 			ElexisEventDispatcher.getInstance().addListeners(eeli_pat, eeli_kons);
 			Konsultation newKons = (Konsultation) ElexisEventDispatcher.getSelected(Konsultation.class);
-			if (newKons != null) {
-				String msg = newKons.getId()+ " " + newKons.getLabel() + " " + newKons.getFall().getPatient().getPersonalia();
-				log.debug("visible true " + msg);
-				displaySelectedConsultation(newKons);
-			} else {
-				log.debug("visible true newKons is null");
-				Patient newPat = ElexisEventDispatcher.getSelectedPatient();
-				if (newPat != null) {
-					newKons = newPat.getLetzteKons(false);
-					log.debug("visible true " + newPat.getPersonalia() + " " + newPat.getId());
-				}
-			}
+			String msg = newKons == null ? "null" :  newKons.getId()+ " " + newKons.getLabel() + " " + newKons.getFall().getPatient().getPersonalia();
+			log.debug("visible true anlog eeli_kons" + msg);
+			showAllChargesAction.setChecked(false);
+			showAllConsultationsAction.setChecked(false);
 			displaySelectedConsultation(newKons);
 		} else {
 			ElexisEventDispatcher.getInstance().removeListeners(eeli_pat, eeli_kons);

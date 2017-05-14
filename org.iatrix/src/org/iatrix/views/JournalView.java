@@ -559,7 +559,6 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 			logEvent(null, "activation " + mode + " sel: " + selected_kons.getLabel() + " act: " + actKons.getId());
 			return;
 		}
-		activateAllKonsAreas(mode);
 		if (mode == false) {
 			// text is neither dirty nor changed.
 			// If it es empty and nothing has been billed, we just delete this kons.
@@ -600,15 +599,13 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				logEvent(newKons, "visible true newKons is null");
 				displaySelectedPatient(ElexisEventDispatcher.getSelectedPatient(), "view visible");
 			}
+			visibleAllKonsAreas(mode);
 			heartbeat.enableListener(true);
 		} else {
 			heartbeat.enableListener(false);
 			ElexisEventDispatcher.getInstance().removeListeners(eeli_kons, eeli_problem,
 				eeli_pat, eeli_user);
-			// TODO: Braucht es diesen Aufruf wirklich?
-			updateAllKonsAreas(null, KonsActions.ACTIVATE_KONS);
 		}
-		visibleAllKonsAreas(mode);
 	};
 
 	private static void logEvent(Konsultation kons, String msg){

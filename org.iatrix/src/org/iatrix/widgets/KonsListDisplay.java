@@ -18,13 +18,8 @@ package org.iatrix.widgets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.viewers.IFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -32,18 +27,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.ScrolledForm;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
-import org.iatrix.Iatrix;
 import org.iatrix.widgets.KonsListComposite.KonsData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.elexis.core.data.activator.CoreHub;
-import ch.elexis.core.ui.actions.ObjectFilterRegistry;
+import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.ui.util.SWTHelper;
-import ch.elexis.data.Fall;
 import ch.elexis.data.Konsultation;
-import ch.elexis.data.Patient;
-import ch.elexis.data.Query;
 
 /**
  * Anzeige der vergangenen Konsultationen inkl. Verrechnung. Der Patient wird ueber die Methode
@@ -117,130 +107,21 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 		}
 	}
 
-	class KonsLoader extends Job {
-
-		String name;
-		Patient patient = null;
-		private boolean showAllCharges = true;
-		private boolean showAllConsultations = true;
-		List<KonsListComposite.KonsData> konsDataList = new ArrayList<>();
-
-		public Konsultation actKons;
-
-		public KonsLoader(){
-			super("KonsLoader");
-			log.debug("loaderJob KonsLoader created");
-		}
-
-		public void setKons(Konsultation kons, boolean showAllCharges,
-			boolean showAllConsultations){
-			if (kons != null) {
-				this.patient = kons.getFall().getPatient();
-			} else {
-				this.patient = null;
-				dataLoader.cancel();
-			}
-			this.showAllCharges = showAllCharges;
-			this.showAllConsultations = showAllConsultations;
-		}
-
-		@Override
-		protected IStatus run(IProgressMonitor monitor) {
-			synchronized (konsDataList) {
-				log.debug("loaderJob started patient " + (patient == null ? "null" : patient.getPersonalia()));
-				konsDataList.clear();
-
-				List<Konsultation> konsList = new ArrayList<>();
-
-				if (patient != null) {
-					Fall[] faelle = patient.getFaelle();
-
-					if (faelle.length > 0) {
-						IFilter globalFilter =
-							ObjectFilterRegistry.getInstance().getFilterFor(Konsultation.class);
-
-						Query<Konsultation> query = new Query<>(Konsultation.class);
-						query.startGroup();
-						for (Fall fall : faelle) {
-							query.add("FallID", "=", fall.getId());
-							query.or();
-						}
-						query.endGroup();
-						query.orderBy(true, "Datum");
-						List<Konsultation> kons = query.execute();
-						if (monitor.isCanceled()) {
-							monitor.done();
-							return Status.CANCEL_STATUS;
-						}
-
-						if (kons != null) {
-							for (Konsultation k : kons) {
-								if ( globalFilter == null || globalFilter.select(k)) {
-									konsList.add(k);
-								}
-							}
-						}
-					}
-				}
-				if (monitor == null) {
-					return Status.CANCEL_STATUS;
-				}
-
-				monitor.worked(1);
-
-				if (CoreHub.globalCfg != null) {
-					int maxShownConsultations =
-						CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CONSULTATIONS,
-							Iatrix.CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT);
-
-					if (!showAllConsultations && konsList.size() > maxShownConsultations) {
-						// don't load all entries
-
-						List<Konsultation> newList = new ArrayList<>();
-						for (int i = 0; i < maxShownConsultations; i++) {
-							newList.add(konsList.get(i));
-						}
-						konsList = newList;
-					}
-				}
-
-				if (monitor.isCanceled()) {
-					monitor.done();
-					return Status.CANCEL_STATUS;
-				}
-
-				if (CoreHub.globalCfg != null) {
-				// convert Konsultation objects to KonsData objects
-					int maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
-						Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
-					int i = 0; // counter for maximally shown charges
-					for (Konsultation k : konsList) {
-						KonsListComposite.KonsData ks =
-							new KonsListComposite.KonsData(k, showAllCharges || i < maxShownCharges);
-						konsDataList.add(ks);
-						i++;
-						if (i > maxShownCharges) { break; }
-					}
-				}
-
-				monitor.worked(1);
-				monitor.done();
-
-				if (monitor.isCanceled()) {
-					return Status.CANCEL_STATUS;
-				} else {
-					return Status.OK_STATUS;
-				}
-			}
-		}
-
-		public List<KonsListComposite.KonsData> getKonsultationen(){
-			return konsDataList;
-		}
-	}
-
 	@Override
 	public void visible(boolean mode){
+		actKons = (Konsultation) ElexisEventDispatcher.getSelected(Konsultation.class);
+		if (actKons == null) {
+			konsListComposite.setKonsultationen(null, null);
+		} else {
+			final List<KonsData> copy = new ArrayList<>(dataLoader.getKonsultationen());
+			log.debug("visible konsListDisplay " + mode + " " + (actKons != null ? actKons.getId() +
+					" " + actKons.getFall().getPatient().getPersonalia() 
+					: "null") +
+				" with " + copy.size() + " dataLoader.getKonsultationen + konsListComposite.setKonsultationen");
+			konsListComposite.setKonsultationen(copy, actKons);
+			reload(false, copy);
+			setKons(actKons, KonsActions.ACTIVATE_KONS);
+		}
 	}
 
 	@Override
@@ -252,15 +133,24 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 
 	@Override
 	public void setKons(Konsultation newKons, KonsActions op){
-		log.debug("setKons " + (newKons != null ? newKons.getId() + " " + newKons.getLabel() + " " + newKons.getLabel() : "null" ));
-		actKons = newKons;
 		if (newKons == null) {
+			log.debug("setKons reload null");
+			actKons = newKons;
 			reload(false, null);
 		} else {
-			dataLoader.cancel();
-			reload(true, null);
-			dataLoader.setKons(newKons, showAllCharges, showAllConsultations);
-			dataLoader.schedule();
+			if (newKons != null && actKons != null && newKons.getId().equals(actKons.getId())) {
+				log.debug("setKons konsId matches skip reload");
+			} else {
+				String konsInfo = "actKons " + ( actKons != null ? actKons.getId() + actKons.getLabel() : "null") + 
+						newKons.getId() + " " + newKons.getLabel() +
+						" " + newKons.getFall().getPatient().getPersonalia();
+				log.debug("setKons " +konsInfo);
+				actKons = newKons;
+				dataLoader.cancel();
+				reload(true, null);
+				dataLoader.setKons(newKons, showAllCharges, showAllConsultations);
+				dataLoader.schedule();
+			}
 		}
 		konsListComposite.refeshHyperLinks(actKons);
 	}
