@@ -35,25 +35,17 @@ final class KonsLoader extends Job {
 		log.debug("loaderJob KonsLoader created");
 	}
 
-	public void setKons(Konsultation kons, boolean showAllCharges,
+	public void setKons(Konsultation newKons, boolean showAllCharges,
 		boolean showAllConsultations){
-		if (kons == null && actKons == null) {
+		if (newKons == null && actKons == null) {
 			System.out.println("Already null actKons");
 			return;
 		} 
-		if (kons != null && actKons != null &&
-				kons.getId().equals(actKons.getId())) {
-			System.out.println(String.format("actKons %s matches newKons %s", actKons.getId(), kons.getId()));
-			return;
-		} 
-		actKons = kons;
-		if (kons != null) {
-			this.patient = kons.getFall().getPatient();
-			System.out.println(String.format("Switch newKons %s %s", kons.getId(), this.patient.getPersonalia()));
-		} else {
-			System.out.println("newKons null");
-			this.patient = null;
-//			KonsListDisplay.dataLoader.cancel();
+		actKons = newKons;
+		System.out.println(String.format("actKons %s newKons %s", actKons.getId(), newKons.getId()));
+		if (newKons != null) {
+			this.patient = newKons.getFall().getPatient();
+			System.out.println(String.format("Switch newKons %s %s", newKons.getId(), this.patient.getPersonalia()));
 		}
 		this.showAllCharges = showAllCharges;
 		this.showAllConsultations = showAllConsultations;
@@ -62,9 +54,19 @@ final class KonsLoader extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (konsDataList) {
+			int maxShownConsultations = Iatrix.CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT;
+			int maxShownCharges = Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT;
+			if (CoreHub.globalCfg != null) {
+				maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
+					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
+				maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
+					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
+			}
+			System.out.println(String.format("Start run: showAllConsultations %s %s maxShownCharges %d maxShownConsultations %d",
+				showAllConsultations, showAllCharges, maxShownCharges, 	maxShownConsultations));
+
 			log.debug("loaderJob started patient " + (patient == null ? "null" : patient.getPersonalia()) + 
-				" actKons " +
-		actKons == null ? "null" : actKons.getLabel());
+				" actKons " +	actKons == null ? "null" : actKons.getLabel());
 			konsDataList.clear();
 
 			List<Konsultation> konsList = new ArrayList<>();
@@ -94,51 +96,47 @@ final class KonsLoader extends Job {
 						for (Konsultation k : kons) {
 							if ( globalFilter == null || globalFilter.select(k)) {
 								konsList.add(k);
+								monitor.done();
 							}
 						}
 					}
 				}
 			}
+			System.out.println(String.format("after Reading konsList.size() %d", konsList.size()));
 			if (monitor == null) {
 				return Status.CANCEL_STATUS;
 			}
 
 			monitor.worked(1);
-
-			if (CoreHub.globalCfg != null) {
-				int maxShownConsultations =
-					CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CONSULTATIONS,
-						Iatrix.CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT);
-
-				if (!showAllConsultations && konsList.size() > maxShownConsultations) {
-					// don't load all entries
-
-					List<Konsultation> newList = new ArrayList<>();
-					for (int i = 0; i < maxShownConsultations; i++) {
-						newList.add(konsList.get(i));
-					}
-					konsList = newList;
+			if (!showAllConsultations && konsList.size() > maxShownConsultations) {
+				// don't load all entries
+				List<Konsultation> newList = new ArrayList<>();
+				for (int i = 0; i < maxShownConsultations; i++) {
+					newList.add(konsList.get(i));
 				}
+				konsList = newList;
 			}
+			System.out.println(String.format("after checking konsList.size() %d", konsList.size()));
 
 			if (monitor.isCanceled()) {
 				monitor.done();
 				return Status.CANCEL_STATUS;
 			}
 
-			if (CoreHub.globalCfg != null) {
 			// convert Konsultation objects to KonsData objects
-				int maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
-					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
-				int i = 0; // counter for maximally shown charges
-				for (Konsultation k : konsList) {
-					KonsListComposite.KonsData ks =
-						new KonsListComposite.KonsData(k, showAllCharges || i < maxShownCharges);
-					konsDataList.add(ks);
-					i++;
-					if (i > maxShownCharges) { break; }
-				}
+			int i = 0; // counter for maximally shown charges
+			for (Konsultation k : konsList) {
+				KonsListComposite.KonsData ks =
+					new KonsListComposite.KonsData(k, showAllCharges || i < maxShownCharges);
+				konsDataList.add(ks);
+				i++;
+				if (!showAllCharges && i > maxShownCharges) { 
+					break;
+					}
 			}
+
+			System.out.println(String.format("Done: showAllConsultations %s Charges %s maxShownConsultations konsList.size() %d max %d %d",
+				showAllConsultations, showAllCharges, konsList.size(),	maxShownCharges, maxShownConsultations));
 
 			monitor.worked(1);
 			monitor.done();

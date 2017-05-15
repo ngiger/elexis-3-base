@@ -131,6 +131,8 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 	static int savedKonsVersion = -1;
 	static Konsultation actKons = null;
 
+	private static boolean savedShowCharges = false;
+	private static boolean savedshowConsultations = false;
 	@Override
 	public void setKons(Konsultation newKons, KonsActions op){
 		if (newKons == null) {
@@ -138,7 +140,10 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 			actKons = newKons;
 			reload(false, null);
 		} else {
-			if (newKons != null && actKons != null && newKons.getId().equals(actKons.getId())) {
+			if (newKons != null && actKons != null && newKons.getId().equals(actKons.getId()) &&
+					(savedShowCharges == showAllCharges) &&
+					(savedshowConsultations == showAllConsultations)
+					) {
 				log.debug("setKons konsId matches skip reload");
 			} else {
 				String konsInfo = "actKons " + ( actKons != null ? actKons.getId() + actKons.getLabel() : "null") + 
@@ -152,15 +157,25 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 				dataLoader.schedule();
 			}
 		}
+		savedShowCharges = showAllCharges;
+		savedshowConsultations = showAllConsultations;
 		konsListComposite.refeshHyperLinks(actKons);
 	}
 
+	public void worked(int work){
+		log.debug("loaderJob worked for " + dataLoader.getKonsultationen().size()  + " kons.");
+	/* empty */}
+
 	@Override
 	public void aboutToRun(IJobChangeEvent event) {
+		int nrKons = dataLoader.getKonsultationen().size() ;
+		log.debug("loaderJob aboutToRun for " + nrKons + " kons.");
 	/* empty */}
 
 	@Override
 	public void awake(IJobChangeEvent event) {
+		int nrKons = dataLoader.getKonsultationen().size() ;
+		log.debug("loaderJob awake for " + nrKons + " kons.");
 	/* empty */}
 
 	@Override
@@ -169,7 +184,8 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				log.debug("loaderJob got done for " + copy.size()  + " kons.");
+				int nrKonst = copy.size();
+				System.out.println("loaderJob got done for " + nrKonst  + " kons.");
 				reload(false, copy);
 			}
 		});

@@ -32,6 +32,7 @@ import ch.elexis.core.ui.actions.GlobalActions;
 import ch.elexis.core.ui.actions.GlobalEventDispatcher;
 import ch.elexis.core.ui.actions.IActivationListener;
 import ch.elexis.core.ui.events.ElexisUiEventListenerImpl;
+import ch.elexis.core.ui.util.ViewMenus;
 import ch.elexis.data.Konsultation;
 import ch.elexis.data.Patient;
 
@@ -51,11 +52,14 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 	private Action showAllChargesAction;
 	private Action showAllConsultationsAction;
 	private Konsultation actKons = null;
+	private ViewMenus menus;
 
 	private void displaySelectedConsultation(Konsultation newKons) {
 		actKons = newKons;
 		log.debug("KonstListView " + (newKons == null ? "null" : newKons.getLabel() + " for " +
 		newKons.getFall().getPatient().getPersonalia()));
+		showAllChargesAction.setChecked(false);
+		showAllConsultationsAction.setChecked(false);
 		konsListDisplay.setKonsultation(actKons, showAllChargesAction.isChecked(),
 			showAllConsultationsAction.isChecked());
 	}
@@ -99,6 +103,9 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 		konsListDisplay = new KonsListDisplay(parent);
 
 		makeActions();
+		menus = new ViewMenus(getViewSite());
+		menus.createMenu(showAllConsultationsAction, showAllChargesAction);
+		// menus.createToolbar(showAllConsultationsAction, showAllChargesAction);
 
 		GlobalEventDispatcher.addActivationListener(this, this);
 		activateContext();
@@ -118,6 +125,7 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 	private void makeActions(){
 		showAllChargesAction = new Action("Alle Leistungen anzeigen", Action.AS_CHECK_BOX) {
 			{
+				setChecked(false);
 				setToolTipText("Leistungen aller Konsultationen anzeigen, nicht nur der ersten paar.");
 			}
 
@@ -130,10 +138,10 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 		};
 		showAllChargesAction.setActionDefinitionId(Iatrix.SHOW_ALL_CHARGES_COMMAND);
 		GlobalActions.registerActionHandler(this, showAllChargesAction);
-
 		showAllConsultationsAction =
 			new Action("Alle Konsultationen anzeigen", Action.AS_CHECK_BOX) {
 				{
+					setChecked(false);
 					setToolTipText("Alle Konsultationen anzeigen.");
 				}
 
