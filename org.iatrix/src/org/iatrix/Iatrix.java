@@ -22,12 +22,11 @@ public class Iatrix {
 	public static final String IMG_ACTIVE = IatrixActivator.PLUGIN_ID + "_active";
 	public static final String IMG_INACTIVE = IatrixActivator.PLUGIN_ID + "_inactive";
 
-	public static final String SHOW_ALL_CHARGES_COMMAND = "org.iatrix.commands.show_all_charges";
 	public static final String SHOW_ALL_CONSULTATIONS_COMMAND =
 		"org.iatrix.commands.show_all_consultations";
 
-	public static final String CFG_MAX_SHOWN_CHARGES = "org.iatrix/max_shown_charges";
-	public static final int CFG_MAX_SHOWN_CHARGES_DEFAULT = 2;
+	public static final String SHOW_MORE_CONSULTATIONS_COMMAND =
+		"org.iatrix.commands.show_more_consultations";
 	public static final String CFG_MAX_SHOWN_CONSULTATIONS = "org.iatrix/max_shown_consultations";
 	public static final int CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT = 5;
 

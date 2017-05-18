@@ -38,6 +38,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.iatrix.Iatrix;
+import org.iatrix.Messages;
 import org.iatrix.data.KonsTextLock;
 import org.iatrix.util.Constants;
 import org.iatrix.util.Heartbeat;
@@ -120,7 +121,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	private IAction exportToClipboardAction;
 	private IAction sendEmailAction;
 	private IAction addKonsultationAction;
-	private Action showAllChargesAction;
+	private Action showMoreConsultations;
 	private Action showAllConsultationsAction;
 
 	private static List<IJournalArea> allAreas;
@@ -200,14 +201,14 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				GlobalActions.delKonsAction, problemsArea.delProblemAction, exportToClipboardAction, sendEmailAction,
 				konsTextComposite.getVersionForwardAction(), konsTextComposite.getVersionBackAction(),
 				konsTextComposite.getChooseVersionAction(), konsTextComposite.getPurgeAction(),
-				konsTextComposite.getSaveAction(), showAllConsultationsAction, showAllChargesAction,
+				konsTextComposite.getSaveAction(), showAllConsultationsAction, showMoreConsultations,
 				problemsArea.addFixmedikationAction);
 		} else {
 			menus.createMenu(addKonsultationAction, GlobalActions.redateAction, problemsArea.addProblemAction,
 				GlobalActions.delKonsAction, problemsArea.delProblemAction, exportToClipboardAction, sendEmailAction,
 				konsTextComposite.getVersionForwardAction(), konsTextComposite.getVersionBackAction(),
 				konsTextComposite.getChooseVersionAction(), konsTextComposite.getSaveAction(),
-				showAllConsultationsAction, showAllChargesAction, problemsArea.addFixmedikationAction);
+				showAllConsultationsAction, showMoreConsultations, problemsArea.addFixmedikationAction);
 		}
 
 		menus.createToolbar(sendEmailAction, exportToClipboardAction, addKonsultationAction,
@@ -228,7 +229,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		if (actKons == null) {
 			return;
 		}
-		logEvent(actKons, "saveActKonst");
+		logEvent(actKons, "saveActKonst"); //$NON-NLS-1$
 		for (int i = 0; i < allAreas.size(); i++) {
 			IJournalArea a = allAreas.get(i);
 			if (a != null) {
@@ -254,7 +255,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		// It is a bad idea to skip updating the kons, when the Id matches
 		// Some changes, e.g. when date of actual kons are possible even when the compare matches.
 		// Therefore we return only when we have nothing to update savedKonst == newKons?" + newId + " konsId match? " + savedKonsId.equals(newId));
-		logEvent(newKons, "updateAllKonsAreas: newKons");
+		logEvent(newKons, "updateAllKonsAreas: newKons"); //$NON-NLS-1$
 		for (int i = 0; i < allAreas.size(); i++) {
 			IJournalArea a = allAreas.get(i);
 			if (a != null) {
@@ -264,7 +265,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	}
 
 	private void activateAllKonsAreas(boolean mode){
-		logEvent(null, "activateAllKonsAreas: " + mode);
+		logEvent(null, "activateAllKonsAreas: " + mode); //$NON-NLS-1$
 		for (int i = 0; i < allAreas.size(); i++) {
 			IJournalArea a = allAreas.get(i);
 			if (a != null) {
@@ -274,7 +275,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	}
 
 	private void visibleAllKonsAreas(boolean mode){
-		logEvent(null, "visibleAllKonsAreas: " + mode);
+		logEvent(null, "visibleAllKonsAreas: " + mode); //$NON-NLS-1$
 		for (int i = 0; i < allAreas.size(); i++) {
 			IJournalArea a = allAreas.get(i);
 			if (a != null) {
@@ -293,11 +294,11 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 					// problem change may affect current problems list and consultation
 					// TODO check if problem is part of current consultation
 					// work-around: just update the current patient and consultation
-					logEvent(null, "eeli_problem EVENT_UPDATE");
+					logEvent(null, "eeli_problem EVENT_UPDATE"); //$NON-NLS-1$
 					problemsArea.reloadAndRefresh();
 					break;
 				case EVENT_DESELECTED:
-					logEvent(null, "eeli_problem EVENT_DESELECTED");
+					logEvent(null, "eeli_problem EVENT_DESELECTED"); //$NON-NLS-1$
 					problemsKTable.clearSelection();
 					break;
 				}
@@ -312,16 +313,16 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		@Override
 		public void runInUi(ElexisEvent ev){
 			Konsultation newKons = (Konsultation) ev.getObject();
-			String msg = "unknown";
+				String msg = "unknown"; //$NON-NLS-1$
 			switch (ev.getType()) {
 			case EVENT_SELECTED:
-				msg = "EVENT_SELECTED";
+					msg = "EVENT_SELECTED"; //$NON-NLS-1$
 				break;
 			case EVENT_UPDATE:
-				msg = "EVENT_UPDATE";
+					msg = "EVENT_UPDATE"; //$NON-NLS-1$
 				break;
 			case EVENT_RELOAD:
-				msg = "EVENT_RELOAD";
+					msg = "EVENT_RELOAD"; //$NON-NLS-1$
 				break;
 			}
 			if (!removedStaleKonsLocks) {
@@ -330,13 +331,13 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 			}
 			// when we get an update or select event the parameter is always not null
 			if ((actKons == null) || !Helpers.haveSameContent(newKons, actKons)) {
-				logEvent(newKons, "eeli_kons " + msg + " SAVE_KONS");
+					logEvent(newKons, "eeli_kons " + msg + " SAVE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				// updateAllKonsAreas(actKons, KonsActions.SAVE_KONS);
 				Patient newPatient = newKons.getFall().getPatient();
 				if (newPatient != actPatient) {
-					displaySelectedPatient(newPatient, "eeli_kons newPatient");
+						displaySelectedPatient(newPatient, "eeli_kons newPatient"); //$NON-NLS-1$
 				}
-				logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS");
+					logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
 			} else {
 				// Or we would simply forget to update it after
@@ -357,16 +358,17 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	 */
 	private void displaySelectedPatient(Patient selectedPatient, String why){
 		if (selectedPatient == null) {
-			logEvent(null, why + " displaySelectedPatient " + "no patient");
+			logEvent(null, why + " displaySelectedPatient " + "no patient"); //$NON-NLS-1$ //$NON-NLS-2$
 			actPatient = null;
 			updateAllKonsAreas(null, KonsActions.ACTIVATE_KONS);
 			return;
 
 		} else {
-			logEvent(null, why + " displaySelectedPatient " + selectedPatient.getId() + selectedPatient.getPersonalia());
+			logEvent(null, why + " displaySelectedPatient " + selectedPatient.getId() //$NON-NLS-1$
+				+ selectedPatient.getPersonalia());
 		}
 
-		showAllChargesAction.setChecked(false);
+		showMoreConsultations.setChecked(false);
 		showAllConsultationsAction.setChecked(false);
 
 		// Find the most recent open konsultation for the given fall
@@ -389,13 +391,15 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 								konsultation = konsultation.getFall().neueKonsultation();
 							}
 						}
-						log.debug("displaySelectedPatient neue Kons fall.isOpen " +  konsultation.getId() + " " + konsultation.getLabel());
+						log.debug("displaySelectedPatient neue Kons fall.isOpen " //$NON-NLS-1$
+							+ konsultation.getId() + " " + konsultation.getLabel()); //$NON-NLS-1$
 						break;
 					}
 				}
 				if (konsultation == null) {
 					konsultation = selectedPatient.createFallUndKons();
-					log.debug("displaySelectedPatient neue Kons createFallUndKons " + konsultation.getId() + " " + konsultation.getLabel());
+					log.debug("displaySelectedPatient neue Kons createFallUndKons " //$NON-NLS-1$
+						+ konsultation.getId() + " " + konsultation.getLabel()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -415,7 +419,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 
 			@Override
 			public void runInUi(ElexisEvent ev){
-				displaySelectedPatient((Patient) ev.getObject(), "eeli_pat " + ev.getType());
+				displaySelectedPatient((Patient) ev.getObject(), "eeli_pat " + ev.getType()); //$NON-NLS-1$
 				// setPatient((Patient) ev.getObject());
 			}
 		};
@@ -424,7 +428,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		new ElexisUiEventListenerImpl(Anwender.class, ElexisEvent.EVENT_USER_CHANGED) {
 			@Override
 			public void runInUi(ElexisEvent ev){
-				logEvent(null, "runInUi eeli_user adaptMenus");
+				logEvent(null, "runInUi eeli_user adaptMenus"); //$NON-NLS-1$
 				adaptMenus();
 			}
 		};
@@ -471,8 +475,8 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		// Replacement for GlobalActions.neueKonsAction (other image)
 		addKonsultationAction = new Action(GlobalActions.neueKonsAction.getText()) {
 			{
-				setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("org.iatrix",
-					"icons/new_konsultation.ico"));
+				setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("org.iatrix", //$NON-NLS-1$
+					"icons/new_konsultation.ico")); //$NON-NLS-1$
 				setToolTipText(GlobalActions.neueKonsAction.getToolTipText());
 			}
 
@@ -490,10 +494,10 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 			problemsArea.addProblemAction.setActionDefinitionId(Constants.NEWPROBLEM_COMMAND);
 		}
 
-		exportToClipboardAction = new Action("Export (Zwischenablage)") {
+		exportToClipboardAction = new Action(Messages.JournalView_export_to_clipboard) {
 			{
 				setImageDescriptor(Images.IMG_EXPORT.getImageDescriptor());
-				setToolTipText("Zusammenfassung in Zwischenablage kopieren");
+				setToolTipText(Messages.JournalView_export_extract_to_clipboard);
 			}
 
 			@Override
@@ -504,15 +508,15 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		exportToClipboardAction.setActionDefinitionId(Constants.EXPORT_CLIPBOARD_COMMAND);
 		GlobalActions.registerActionHandler(this, exportToClipboardAction);
 
-		sendEmailAction = new Action("E-Mail verschicken") {
+		sendEmailAction = new Action(Messages.JournalView_send_email) {
 			{
 				setImageDescriptor(Images.IMG_MAIL.getImageDescriptor());
-				setToolTipText("E-Mail Programm öffnent (mit Medikation und allen Konsultationen)");
+				setToolTipText(Messages.JournalView_open_mail_program_with_drugs);
 			}
 
 			@Override
 			public void run(){
-				Email.openMailApplication("", // No default to address
+				Email.openMailApplication("", // No default to address //$NON-NLS-1$
 					null, Helpers.exportToClipboard(actPatient, null), // TODO: selected problem
 					null);
 
@@ -522,32 +526,32 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		GlobalActions.registerActionHandler(this, sendEmailAction);
 
 		// history display
-		showAllChargesAction = new Action("Alle Leistungen anzeigen", Action.AS_CHECK_BOX) {
+		showMoreConsultations = new Action(Messages.JournalView_show_more_consultations, Action.AS_CHECK_BOX) {
 			{
 				setChecked(false);
 				setToolTipText(
-					"Leistungen aller Konsultationen anzeigen, nicht nur der ersten paar.");
+					Messages.JournalView_show_more_consultations_tooltip);
 			}
 
 			@Override
 			public void run(){
-				konsListDisplay.setKonsultation(actKons, showAllChargesAction.isChecked(),
+				konsListDisplay.setKonsultation(actKons, showMoreConsultations.isChecked(),
 					showAllConsultationsAction.isChecked());
 			}
 		};
-		showAllChargesAction.setActionDefinitionId(Iatrix.SHOW_ALL_CHARGES_COMMAND);
-		GlobalActions.registerActionHandler(this, showAllChargesAction);
+		showMoreConsultations.setActionDefinitionId(Iatrix.SHOW_MORE_CONSULTATIONS_COMMAND);
+		GlobalActions.registerActionHandler(this, showMoreConsultations);
 
-		showAllConsultationsAction = new Action("Alle Konsultationen anzeigen",
+		showAllConsultationsAction = new Action(Messages.JournalView_show_all_consultations,
 			Action.AS_CHECK_BOX) {
 			{
 				setChecked(false);
-				setToolTipText("Alle Konsultationen anzeigen");
+				setToolTipText(Messages.JournalView_show_all_consultations_tooltip);
 			}
 
 			@Override
 			public void run(){
-				konsListDisplay.setKonsultation(actKons, showAllChargesAction.isChecked(),
+				konsListDisplay.setKonsultation(actKons, showMoreConsultations.isChecked(),
 					showAllConsultationsAction.isChecked());
 			}
 		};
@@ -560,7 +564,8 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		Konsultation selected_kons = (Konsultation) ElexisEventDispatcher.getSelected(Konsultation.class);
 		if (selected_kons != null && actKons != null && !selected_kons.getId().equals(actKons.getId())) {
 			// this should never happen
-			logEvent(null, "activation " + mode + " sel: " + selected_kons.getLabel() + " act: " + actKons.getId());
+			logEvent(null, "activation " + mode + " sel: " + selected_kons.getLabel() + " act: " //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				+ actKons.getId());
 			return;
 		}
 		if (mode == false) {
@@ -570,7 +575,8 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				return;
 			}
 			boolean noLeistungen = actKons.getLeistungen() == null || actKons.getLeistungen().isEmpty();
-			log.debug("Delete the kons? " + konsTextComposite.getPlainText().length() + " noLeistungen " + noLeistungen);
+			log.debug("Delete the kons? " + konsTextComposite.getPlainText().length() //$NON-NLS-1$
+				+ " noLeistungen " + noLeistungen); //$NON-NLS-1$
 			if (konsTextComposite.getPlainText().length() == 0 && (noLeistungen)) {
 				Fall f = actKons.getFall();
 				Konsultation[] ret = f.getBehandlungen(false);
@@ -594,14 +600,15 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				eeli_user);
 			Konsultation newKons = (Konsultation) ElexisEventDispatcher.getSelected(Konsultation.class);
 			if (newKons != null) {
-				String msg = newKons.getId()+ " " + newKons.getLabel() + " " + newKons.getFall().getPatient().getPersonalia();
-				logEvent(newKons, "visible true " + msg);
+				String msg = newKons.getId() + " " + newKons.getLabel() + " " //$NON-NLS-1$//$NON-NLS-2$
+					+ newKons.getFall().getPatient().getPersonalia();
+				logEvent(newKons, "visible true " + msg); //$NON-NLS-1$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
 
 			} else
 			{
-				logEvent(newKons, "visible true newKons is null");
-				displaySelectedPatient(ElexisEventDispatcher.getSelectedPatient(), "view visible");
+				logEvent(newKons, "visible true newKons is null"); //$NON-NLS-1$
+				displaySelectedPatient(ElexisEventDispatcher.getSelectedPatient(), "view visible"); //$NON-NLS-1$
 			}
 			visibleAllKonsAreas(mode);
 			heartbeat.enableListener(true);
@@ -618,9 +625,9 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 			Fall f = kons.getFall();
 			if (f != null) {
 				Patient pat = f.getPatient();
-				sb.append(" kons: "+ kons.getId());
-				sb.append(" vom " + kons.getDatum());
-				sb.append(" " + pat.getId() + ": " + pat.getPersonalia());
+				sb.append(" kons: " + kons.getId()); //$NON-NLS-1$
+				sb.append(" vom " + kons.getDatum()); //$NON-NLS-1$
+				sb.append(" " + pat.getId() + ": " + pat.getPersonalia()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		log.debug(sb.toString());

@@ -40,7 +40,7 @@ final class KonsLoader extends Job {
 		if (newKons == null && actKons == null) {
 			log.debug("Already null actKons");
 			return;
-		} 
+		}
 		actKons = newKons;
 		log.debug(String.format("actKons %s newKons %s", actKons.getId(), newKons.getId()));
 		if (newKons != null) {
@@ -55,17 +55,15 @@ final class KonsLoader extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		synchronized (konsDataList) {
 			int maxShownConsultations = Iatrix.CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT;
-			int maxShownCharges = Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT;
 			if (CoreHub.globalCfg != null) {
-				maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
-					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
-				maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
-					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
+				maxShownConsultations = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CONSULTATIONS,
+					Iatrix.CFG_MAX_SHOWN_CONSULTATIONS_DEFAULT);
 			}
-			log.debug(String.format("Start run: showAllConsultations %s %s maxShownCharges %d maxShownConsultations %d",
-				showAllConsultations, showAllCharges, maxShownCharges, 	maxShownConsultations));
+			log.debug(
+				String.format("Start run: showAllConsultations %s %s maxShownConsultations %d",
+					showAllConsultations, showAllCharges, maxShownConsultations));
 
-			log.debug("loaderJob started patient " + (patient == null ? "null" : patient.getPersonalia()) + 
+			log.debug("loaderJob started patient " + (patient == null ? "null" : patient.getPersonalia()) +
 				" actKons " +	actKons == null ? "null" : actKons.getLabel());
 			konsDataList.clear();
 
@@ -127,16 +125,17 @@ final class KonsLoader extends Job {
 			int i = 0; // counter for maximally shown charges
 			for (Konsultation k : konsList) {
 				KonsListComposite.KonsData ks =
-					new KonsListComposite.KonsData(k, showAllCharges || i < maxShownCharges);
+					new KonsListComposite.KonsData(k, showAllCharges || i < maxShownConsultations);
 				konsDataList.add(ks);
 				i++;
-				if (!showAllCharges && i > maxShownCharges) { 
+				if (!showAllCharges && i > maxShownConsultations) {
 					break;
 					}
 			}
 
-			log.debug(String.format("Done: showAllConsultations %s Charges %s maxShownConsultations konsList.size() %d max %d %d",
-				showAllConsultations, showAllCharges, konsList.size(),	maxShownCharges, maxShownConsultations));
+			log.debug(String.format(
+				"Done: showAllConsultations %s maxShownConsultations konsList.size() %d max %d",
+				showAllConsultations, konsList.size(), maxShownConsultations));
 
 			monitor.worked(1);
 			monitor.done();

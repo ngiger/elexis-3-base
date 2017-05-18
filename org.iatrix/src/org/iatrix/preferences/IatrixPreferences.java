@@ -38,9 +38,6 @@ public class IatrixPreferences extends FieldEditorPreferencePage
 
 	@Override
 	protected void createFieldEditors(){
-		addField(new StringFieldEditor(Iatrix.CFG_MAX_SHOWN_CHARGES, "Kons-Leistungen",
-			getFieldEditorParent()));
-
 		addField(new StringFieldEditor(Iatrix.CFG_MAX_SHOWN_CONSULTATIONS,
 			"Angezeigte Konsultationen", getFieldEditorParent()));
 	}
@@ -50,12 +47,6 @@ public class IatrixPreferences extends FieldEditorPreferencePage
 		// initialize values if needed
 
 		String value;
-
-		value = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES, null);
-		if (value == null) {
-			CoreHub.globalCfg.set(Iatrix.CFG_MAX_SHOWN_CHARGES,
-				Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
-		}
 
 		value = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CONSULTATIONS, null);
 		if (value == null) {

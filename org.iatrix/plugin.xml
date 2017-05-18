@@ -88,13 +88,13 @@
             sequence="M1+P">
       </key>
       <key
-            commandId="org.iatrix.commands.show_all_charges"
+            commandId="org.iatrix.commands.show_more_consultations"
             contextId="org.iatrix.view.context"
             schemeId="ch.elexis.ui.keybindingScheme"
             sequence="F6">
       </key>
       <key
-            commandId="org.iatrix.commands.show_all_charges"
+            commandId="org.iatrix.commands.show_more_consultations"
             contextId="org.iatrix.view.konslist.context"
             schemeId="ch.elexis.ui.keybindingScheme"
             sequence="F6">
@@ -135,8 +135,8 @@
       </command>
       <command
             categoryId="org.iatrix.commands.category"
-            id="org.iatrix.commands.show_all_charges"
-            name="%iatrix.commands.show_all_charges">
+            id="org.iatrix.commands.show_more_consultations"
+            name="%org.iatrix.commands.show_more_consultations">
       </command>
       <command
             categoryId="org.iatrix.commands.category"
