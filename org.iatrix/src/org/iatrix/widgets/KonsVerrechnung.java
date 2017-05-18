@@ -66,18 +66,22 @@ import ch.elexis.core.data.interfaces.IVerrechenbar;
 import ch.elexis.core.ui.UiDesk;
 import ch.elexis.core.ui.actions.CodeSelectorHandler;
 import ch.elexis.core.ui.actions.ICodeSelectorTarget;
+import ch.elexis.core.ui.dialogs.MediDetailDialog;
 import ch.elexis.core.ui.util.SWTHelper;
 import ch.elexis.core.ui.views.codesystems.LeistungenView;
 import ch.elexis.data.Artikel;
 import ch.elexis.data.Konsultation;
+import ch.elexis.data.Patient;
 import ch.elexis.data.PersistentObject;
 import ch.elexis.data.PersistentObjectFactory;
+import ch.elexis.data.Prescription;
 import ch.elexis.data.Query;
 import ch.elexis.data.Verrechnet;
 import ch.rgw.tools.ExHandler;
 import ch.rgw.tools.Money;
 import ch.rgw.tools.Result;
 import ch.rgw.tools.StringTool;
+import ch.rgw.tools.TimeTool;
 
 public class KonsVerrechnung implements IJournalArea {
 
@@ -280,9 +284,6 @@ public class KonsVerrechnung implements IJournalArea {
 					if (dropped instanceof Problem) {
 						Problem problem = (Problem) dropped;
 						problem.addToKonsultation(actKons);
-
-						// TODO: updateProblemAssignmentViewer();
-						// TODO: setDiagnosenText(actKons);
 					}
 				}
 			}
@@ -326,19 +327,24 @@ public class KonsVerrechnung implements IJournalArea {
 				String[] dl = drp.split(",");
 				for (String obj : dl) {
 					PersistentObject dropped = CoreHub.poFactory.createFromString(obj);
-					if (dropped instanceof IVerrechenbar) {
-						if (CoreHub.acl.request(AccessControlDefaults.LSTG_VERRECHNEN) == false) {
-							SWTHelper.alert("Fehlende Rechte",
-								"Sie haben nicht die Berechtigung, Leistungen zu verrechnen");
-						} else {
+					if (CoreHub.acl.request(AccessControlDefaults.LSTG_VERRECHNEN) == false) {
+						SWTHelper.alert("Fehlende Rechte",
+							"Sie haben nicht die Berechtigung, Leistungen zu verrechnen");
+					} else {
+						if (dropped instanceof Artikel) {
+							Result<IVerrechenbar> result = addArtikeViaMediDetail(dropped);
+							if (!result.isOK()) {
+								SWTHelper.alert("Diese Verrechnung it ungültig", result.toString());
+							}
+						} else if (dropped instanceof IVerrechenbar) {
 							Result<IVerrechenbar> result =
 								actKons.addLeistung((IVerrechenbar) dropped);
 							if (!result.isOK()) {
 								SWTHelper.alert("Diese Verrechnung it ungültig", result.toString());
 							}
-							verrechnungViewer.refresh();
-							updateVerrechnungSum();
 						}
+						verrechnungViewer.refresh();
+						updateVerrechnungSum();
 					}
 				}
 			}
@@ -364,24 +370,27 @@ public class KonsVerrechnung implements IJournalArea {
 						SWTHelper.alert("Fehlende Rechte",
 							"Sie haben nicht die Berechtigung, Leistungen zu verrechnen");
 					} else {
-						IVerrechenbar verrechenbar = (IVerrechenbar) po;
-
+						IVerrechenbar l = (IVerrechenbar) po;
 						if (actKons != null) {
-							Result<IVerrechenbar> result = actKons.addLeistung(verrechenbar);
-							if (!result.isOK()) {
-								SWTHelper.alert("Diese Verrechnung ist ungültig",
-									result.toString());
+							if (po instanceof Artikel) {
+								addArtikeViaMediDetail(po);
 							} else {
-								if (CoreHub.userCfg.get(Iatrix.CFG_CODE_SELECTION_AUTOCLOSE,
-									Iatrix.CFG_CODE_SELECTION_AUTOCLOSE_DEFAULT)) {
-									// re-activate this view
-									try {
-										PlatformUI.getWorkbench().getActiveWorkbenchWindow()
-											.getActivePage().showView(JournalView.ID);
-									} catch (Exception ex) {
-										ExHandler.handle(ex);
-										log.error("Fehler beim Öffnen von JournalView: "
-											+ ex.getMessage());
+								Result<IVerrechenbar> result = actKons.addLeistung(l);
+								if (!result.isOK()) {
+									SWTHelper.alert("Diese Verrechnung ist ungültig",
+										result.toString());
+								} else {
+									if (CoreHub.userCfg.get(Iatrix.CFG_CODE_SELECTION_AUTOCLOSE,
+										Iatrix.CFG_CODE_SELECTION_AUTOCLOSE_DEFAULT)) {
+										// re-activate this view
+										try {
+											PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+												.getActivePage().showView(JournalView.ID);
+										} catch (Exception ex) {
+											ExHandler.handle(ex);
+											log.error("Fehler beim Öffnen von JournalView: "
+												+ ex.getMessage());
+										}
 									}
 								}
 							}
@@ -419,72 +428,61 @@ public class KonsVerrechnung implements IJournalArea {
 
 		hVerrechnung.setText(sb.toString());
 	}
-
 	/**
 	 * Leistung anhand des Kuerzels hinzufuegen
 	 */
 	private boolean addLeistungByMnemonic(String mnemonic, boolean approximation, boolean multi){
 		boolean success = false;
-
-		if (actKons != null && !StringTool.isNothing(mnemonic)) {
-			Query<Artikel> query = new Query<>(Artikel.class);
-			if (approximation) {
-				query.add("Eigenname", "LIKE", mnemonic + "%");
+		List<Artikel> artikels = findArtikelByName(mnemonic,  approximation,  multi);
+		if (artikels.size() > 0)
+		if (artikels != null && !artikels.isEmpty()) {
+			List<Artikel> selection = new ArrayList<>();
+			if (multi) {
+				selection.addAll(artikels);
 			} else {
-				query.add("Eigenname", "=", mnemonic);
+				selection.add(artikels.get(0));
 			}
-			List<Artikel> artikels = query.execute();
 
-			if (artikels != null && !artikels.isEmpty()) {
-				List<Artikel> selection = new ArrayList<>();
-				if (multi) {
-					selection.addAll(artikels);
-				} else {
-					selection.add(artikels.get(0));
+			List<Result<IVerrechenbar>> results = new ArrayList<>();
+			PersistentObjectFactory factory = new PersistentObjectFactory();
+			for (Artikel artikel : artikels) {
+				String typ = artikel.get("Typ");
+				String id = artikel.getId();
+
+				// work-around for articles without class information (plugin
+				// elexis-artikel-schweiz)
+				if (typ.equals("Medikament") || typ.equals("Medical") || typ.equals("MiGeL")) {
+					typ = "ch.elexis.artikel_ch.data." + typ;
 				}
 
-				List<Result<IVerrechenbar>> results = new ArrayList<>();
-				PersistentObjectFactory factory = new PersistentObjectFactory();
-				for (Artikel artikel : artikels) {
-					String typ = artikel.get("Typ");
-					String id = artikel.getId();
-
-					// work-around for articles without class information (plugin
-					// elexis-artikel-schweiz)
-					if (typ.equals("Medikament") || typ.equals("Medical") || typ.equals("MiGeL")) {
-						typ = "ch.elexis.artikel_ch.data." + typ;
-					}
-
-					PersistentObject po = factory.createFromString(typ + "::" + id);
-					if (po instanceof IVerrechenbar) {
-						Result<IVerrechenbar> result = actKons.addLeistung((IVerrechenbar) po);
-						if (!result.isOK()) {
-							results.add(result);
-						}
+				PersistentObject po = factory.createFromString(typ + "::" + id);
+				if (po instanceof IVerrechenbar) {
+						Result<IVerrechenbar> result = addArtikeViaMediDetail(po);
+					if (!result.isOK()) {
+						results.add(result);
 					}
 				}
+			}
 
-				verrechnungViewer.refresh();
-				updateVerrechnungSum();
+			verrechnungViewer.refresh();
+			updateVerrechnungSum();
 
-				if (results.isEmpty()) {
-					success = true;
-				} else {
-					StringBuffer sb = new StringBuffer();
-					boolean first = true;
-					for (Result<IVerrechenbar> result : results) {
-						if (first) {
-							first = false;
-						} else {
-							sb.append("; ");
-						}
-						sb.append(result.toString());
-						SWTHelper.alert("Diese Verrechnung ist ungültig", sb.toString());
+			if (results.isEmpty()) {
+				success = true;
+			} else {
+				StringBuffer sb = new StringBuffer();
+				boolean first = true;
+				for (Result<IVerrechenbar> result : results) {
+					if (first) {
+						first = false;
+					} else {
+						sb.append("; ");
 					}
+					sb.append(result.toString());
+					SWTHelper.alert("Diese Verrechnung ist ungültig", sb.toString());
 				}
 			}
 		}
-
 		return success;
 	}
 
@@ -547,12 +545,12 @@ public class KonsVerrechnung implements IJournalArea {
 					((IStructuredSelection) verrechnungViewer.getSelection()).getFirstElement();
 				if (sel != null) {
 					Verrechnet verrechnet = (Verrechnet) sel;
-					
+
 					boolean konsEditable = Helpers.hasRightToChangeConsultations(verrechnet.getKons(), true);
 					if(!konsEditable) {
 						return;
 					}
-					
+
 					// String p=Rechnung.geldFormat.format(verrechnet.getEffPreisInRappen()/100.0);
 					// TODO: Ersetzen durch errechnet.getStandardPreis() ??
 					String p = verrechnet.getEffPreis().getAmountAsString();
@@ -633,6 +631,67 @@ public class KonsVerrechnung implements IJournalArea {
 
 	public TableViewer getVerrechnungViewer(){
 		return verrechnungViewer;
+	}
+
+	private boolean artikelAlreadyDispensed(String name){
+		List<Prescription> allPrescriptions = getAllPrescription();
+		for (Prescription p : allPrescriptions) {
+			if (p.getArtikel() != null && p.getArtikel().getInternalName().equals(name)) {
+				log.debug("found " + p.getLabel() + " id: " + p.getArtikel().getId());
+				return true;
+			}
+		}
+		return false;
+	}
+	private List<Prescription> getAllPrescription(){
+		Patient actPat = actKons.getFall().getPatient();
+		Query<Prescription> qbe =
+			new Query<>(Prescription.class, null, null, Prescription.TABLENAME, new String[] {
+				Prescription.FLD_DATE_FROM, Prescription.FLD_DATE_UNTIL, Prescription.FLD_REZEPT_ID,
+				Prescription.FLD_PRESC_TYPE, Prescription.FLD_ARTICLE
+			});
+		qbe.add(Prescription.FLD_PATIENT_ID, Query.EQUALS, actPat.getId());
+		qbe.orderBy(true, Prescription.FLD_DATE_FROM);
+		return qbe.execute();
+	}
+
+	private List<Artikel> findArtikelByName(String mnemonic, boolean approximation, boolean multi){
+		List<Artikel> artikels = new ArrayList<>();
+		if (actKons == null || StringTool.isNothing(mnemonic)) {
+			return artikels;
+		}
+		Query<Artikel> query = new Query<>(Artikel.class);
+		if (approximation) {
+			query.add("Eigenname", "LIKE", mnemonic + "%");
+		} else {
+			query.add("Eigenname", "=", mnemonic);
+		}
+		artikels = query.execute();
+		return artikels;
+	}
+
+	Result<IVerrechenbar> addArtikeViaMediDetail(PersistentObject po){
+		if (po instanceof Artikel) {
+			Artikel artikel = (Artikel) po;
+			boolean schon_verrechnet = artikelAlreadyDispensed(artikel.getName());
+			if (!schon_verrechnet) {
+				Patient actPat = actKons.getFall().getPatient();
+				Prescription prescription =
+					new Prescription(artikel, actPat, StringTool.leer, StringTool.leer);
+				prescription.set(Prescription.FLD_DATE_FROM,
+					new TimeTool().toString(TimeTool.DATE_GER));
+				// Let the user set the Prescription properties
+				MediDetailDialog dlg = new MediDetailDialog(
+					PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), prescription);
+				if (dlg.open() == Dialog.OK) {
+					return actKons.addLeistung((IVerrechenbar) po);
+				}
+				return new Result<>();
+			} else {
+				return actKons.addLeistung((IVerrechenbar) po);
+			}
+		}
+		return new Result<>();
 	}
 
 }
