@@ -174,7 +174,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				15, 65, 20
 			});
 		} else {
-			// System.out.println("konsSash should have 3, but has " + konsultationSash.getChildren().length + " children");
+			// log.debug("konsSash should have 3, but has " + konsultationSash.getChildren().length + " children");
 		}
 		Composite bottomArea = tk.createComposite(mainSash, SWT.NONE);
 		bottomArea.setLayout(new FillLayout());

@@ -176,7 +176,7 @@ public class KonsListComposite {
 			msg +=  " row " + row_kons.getId() + " " + row_kons.getDatum() + (row.hTitle.getEnabled() ? " wasEnabled " : " wasDisabled");
 		}
 		if (actKons != null && row != null && row_kons != null) {
-			// System.out.println("hTitle for "+ row.hTitle.getText() + " " + row_kons.getId());
+			// log.debug("hTitle for "+ row.hTitle.getText() + " " + row_kons.getId());
 			boolean konsEditable = Helpers.hasRightToChangeConsultations(row_kons, false);
 
 			boolean disabled = row_kons.getId().equals(actKons.getId()) || !konsEditable;

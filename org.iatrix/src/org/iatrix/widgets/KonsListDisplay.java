@@ -115,7 +115,7 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 		} else {
 			final List<KonsData> copy = new ArrayList<>(dataLoader.getKonsultationen());
 			log.debug("visible konsListDisplay " + mode + " " + (actKons != null ? actKons.getId() +
-					" " + actKons.getFall().getPatient().getPersonalia() 
+					" " + actKons.getFall().getPatient().getPersonalia()
 					: "null") +
 				" with " + copy.size() + " dataLoader.getKonsultationen + konsListComposite.setKonsultationen");
 			konsListComposite.setKonsultationen(copy, actKons);
@@ -146,7 +146,7 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 					) {
 				log.debug("setKons konsId matches skip reload");
 			} else {
-				String konsInfo = "actKons " + ( actKons != null ? actKons.getId() + actKons.getLabel() : "null") + 
+				String konsInfo = "actKons " + ( actKons != null ? actKons.getId() + actKons.getLabel() : "null") +
 						newKons.getId() + " " + newKons.getLabel() +
 						" " + newKons.getFall().getPatient().getPersonalia();
 				log.debug("setKons " +konsInfo);
@@ -185,7 +185,7 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 			@Override
 			public void run() {
 				int nrKonst = copy.size();
-				System.out.println("loaderJob got done for " + nrKonst  + " kons.");
+				log.debug("loaderJob got done for " + nrKonst + " kons.");
 				reload(false, copy);
 			}
 		});

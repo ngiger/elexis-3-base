@@ -90,10 +90,6 @@ public class Helpers {
 
 			// get list of selected problems
 			List<Problem> problems = new ArrayList<>();
-			System.out.println("TODO problemAssignmentViewer"); // TODO: ngngng
-			/*
-			Problem p = getSelectedProblem();
-*/
 			if (p != null) {
 				problems.add(p);
 			}

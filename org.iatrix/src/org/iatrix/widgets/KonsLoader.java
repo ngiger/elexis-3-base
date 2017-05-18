@@ -38,14 +38,14 @@ final class KonsLoader extends Job {
 	public void setKons(Konsultation newKons, boolean showAllCharges,
 		boolean showAllConsultations){
 		if (newKons == null && actKons == null) {
-			System.out.println("Already null actKons");
+			log.debug("Already null actKons");
 			return;
 		} 
 		actKons = newKons;
-		System.out.println(String.format("actKons %s newKons %s", actKons.getId(), newKons.getId()));
+		log.debug(String.format("actKons %s newKons %s", actKons.getId(), newKons.getId()));
 		if (newKons != null) {
 			this.patient = newKons.getFall().getPatient();
-			System.out.println(String.format("Switch newKons %s %s", newKons.getId(), this.patient.getPersonalia()));
+			log.debug(String.format("Switch newKons %s %s", newKons.getId(), this.patient.getPersonalia()));
 		}
 		this.showAllCharges = showAllCharges;
 		this.showAllConsultations = showAllConsultations;
@@ -62,7 +62,7 @@ final class KonsLoader extends Job {
 				maxShownCharges = CoreHub.globalCfg.get(Iatrix.CFG_MAX_SHOWN_CHARGES,
 					Iatrix.CFG_MAX_SHOWN_CHARGES_DEFAULT);
 			}
-			System.out.println(String.format("Start run: showAllConsultations %s %s maxShownCharges %d maxShownConsultations %d",
+			log.debug(String.format("Start run: showAllConsultations %s %s maxShownCharges %d maxShownConsultations %d",
 				showAllConsultations, showAllCharges, maxShownCharges, 	maxShownConsultations));
 
 			log.debug("loaderJob started patient " + (patient == null ? "null" : patient.getPersonalia()) + 
@@ -102,7 +102,7 @@ final class KonsLoader extends Job {
 					}
 				}
 			}
-			System.out.println(String.format("after Reading konsList.size() %d", konsList.size()));
+			log.debug(String.format("after Reading konsList.size() %d", konsList.size()));
 			if (monitor == null) {
 				return Status.CANCEL_STATUS;
 			}
@@ -116,7 +116,7 @@ final class KonsLoader extends Job {
 				}
 				konsList = newList;
 			}
-			System.out.println(String.format("after checking konsList.size() %d", konsList.size()));
+			log.debug(String.format("after checking konsList.size() %d", konsList.size()));
 
 			if (monitor.isCanceled()) {
 				monitor.done();
@@ -135,7 +135,7 @@ final class KonsLoader extends Job {
 					}
 			}
 
-			System.out.println(String.format("Done: showAllConsultations %s Charges %s maxShownConsultations konsList.size() %d max %d %d",
+			log.debug(String.format("Done: showAllConsultations %s Charges %s maxShownConsultations konsList.size() %d max %d %d",
 				showAllConsultations, showAllCharges, konsList.size(),	maxShownCharges, maxShownConsultations));
 
 			monitor.worked(1);
