@@ -75,14 +75,6 @@ public class KonsDiagnosen implements IJournalArea {
 		logEvent("setDiagnosenText");
 	}
 
-	private void updateKonsultation(boolean updateText){
-		if (actKons != null) {
-			setDiagnosenText(actKons);
-		} else {
-			setDiagnosenText(null);
-		}
-		logEvent("updateKonsultation");
-	}
 	private void logEvent(String msg){
 		StringBuilder sb = new StringBuilder(msg + ": ");
 		sb.append(lDiagnosis.getText()+ " ");
@@ -100,14 +92,17 @@ public class KonsDiagnosen implements IJournalArea {
 	@Override
 	public void setKons(Konsultation newKons, KonsActions op){
 		boolean konsChanged = !Helpers.twoKonsSamePatient(actKons,  newKons);
-		logEvent("setKons " + (newKons != null ? newKons.getId() +
+		log.debug("setKons " + (newKons != null ? newKons.getId() +
 				" vom " + newKons.getDatum() : "null") +
 				" konsChanged: " + konsChanged);
-		if (op == KonsActions.ACTIVATE_KONS || konsChanged) {
-			updateKonsultation(true);
-		}
 		actKons = newKons;
-
+		if (op == KonsActions.ACTIVATE_KONS || konsChanged) {
+			if (actKons != null) {
+				setDiagnosenText(actKons);
+			} else {
+				setDiagnosenText(null);
+			}
+		}
 	}
 
 	@Override

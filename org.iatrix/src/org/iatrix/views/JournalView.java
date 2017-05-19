@@ -325,6 +325,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 					msg = "EVENT_RELOAD"; //$NON-NLS-1$
 				break;
 			}
+			logEvent(newKons, "eeli_kons " + msg) ; //$NON-NLS-1$ 
 			if (!removedStaleKonsLocks) {
 				removedStaleKonsLocks = true;
 				KonsTextLock.deleteObsoleteLocks(newKons);
@@ -337,7 +338,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				if (newPatient != actPatient) {
 						displaySelectedPatient(newPatient, "eeli_kons newPatient"); //$NON-NLS-1$
 				}
-					logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
+				logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
 			} else {
 				// Or we would simply forget to update it after
@@ -358,18 +359,17 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	 */
 	private void displaySelectedPatient(Patient selectedPatient, String why){
 		if (selectedPatient == null) {
-			logEvent(null, why + " displaySelectedPatient " + "no patient"); //$NON-NLS-1$ //$NON-NLS-2$
+			logEvent(null, why + " displaySelectedPatient no patient"); //$NON-NLS-1$ //$NON-NLS-2$
 			actPatient = null;
 			updateAllKonsAreas(null, KonsActions.ACTIVATE_KONS);
 			return;
 
 		} else {
 			logEvent(null, why + " displaySelectedPatient " + selectedPatient.getId() //$NON-NLS-1$
-				+ selectedPatient.getPersonalia());
+				+ " " + selectedPatient.getPersonalia());
 		}
 
-		showMoreConsultations.setChecked(false);
-		showAllConsultationsAction.setChecked(false);
+		showAllConsultationsAction.setChecked(Helpers.getShowAllConsultations());
 
 		// Find the most recent open konsultation for the given fall
 		// If nothing found or not of today, create a new konsultation
@@ -419,6 +419,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 
 			@Override
 			public void runInUi(ElexisEvent ev){
+				log.debug("eeli_pat " + eeli_pat) ; //$NON-NLS-1$ 
 				displaySelectedPatient((Patient) ev.getObject(), "eeli_pat " + ev.getType()); //$NON-NLS-1$
 				// setPatient((Patient) ev.getObject());
 			}
@@ -526,17 +527,16 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		GlobalActions.registerActionHandler(this, sendEmailAction);
 
 		// history display
-		showMoreConsultations = new Action(Messages.JournalView_show_more_consultations, Action.AS_CHECK_BOX) {
+		showMoreConsultations = new Action(Messages.JournalView_show_more_consultations) {
 			{
-				setChecked(false);
 				setToolTipText(
 					Messages.JournalView_show_more_consultations_tooltip);
 			}
 
 			@Override
 			public void run(){
-				konsListDisplay.setKonsultation(actKons, showMoreConsultations.isChecked(),
-					showAllConsultationsAction.isChecked());
+				Helpers.setShowAllConsultations(showAllConsultationsAction.isChecked());
+				konsListDisplay.showMoreKonsultation();
 			}
 		};
 		showMoreConsultations.setActionDefinitionId(Iatrix.SHOW_MORE_CONSULTATIONS_COMMAND);
@@ -545,14 +545,14 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 		showAllConsultationsAction = new Action(Messages.JournalView_show_all_consultations,
 			Action.AS_CHECK_BOX) {
 			{
-				setChecked(false);
+				setChecked(Helpers.getShowAllConsultations());
 				setToolTipText(Messages.JournalView_show_all_consultations_tooltip);
 			}
 
 			@Override
 			public void run(){
-				konsListDisplay.setKonsultation(actKons, showMoreConsultations.isChecked(),
-					showAllConsultationsAction.isChecked());
+				Helpers.setShowAllConsultations(showAllConsultationsAction.isChecked());
+				konsListDisplay.setKonsultation(actKons);
 			}
 		};
 		showAllConsultationsAction.setActionDefinitionId(Iatrix.SHOW_ALL_CONSULTATIONS_COMMAND);
@@ -596,6 +596,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	@Override
 	public void visible(boolean mode){
 		if (mode == true) {
+			showAllConsultationsAction.setChecked(Helpers.getShowAllConsultations());
 			ElexisEventDispatcher.getInstance().addListeners(eeli_kons, eeli_problem, eeli_pat,
 				eeli_user);
 			Konsultation newKons = (Konsultation) ElexisEventDispatcher.getSelected(Konsultation.class);

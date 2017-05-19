@@ -42,6 +42,7 @@ import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.events.ElexisEventDispatcher;
 import ch.elexis.core.data.interfaces.IVerrechenbar;
 import ch.elexis.data.Konsultation;
+import ch.elexis.data.Patient;
 import ch.elexis.data.PersistentObject;
 import ch.elexis.data.Verrechnet;
 import ch.rgw.tools.Money;
@@ -60,7 +61,8 @@ public class KonsListComposite {
 	private final FormToolkit toolkit;
 
 	private final Label loadingLabel;
-	private final List<WidgetRow> widgetRows;
+	private final String defaultLoading = "Lade Konsultationen...";
+	private List<WidgetRow> widgetRows;
 	private final Sash sashLeft;
 	private final Sash sashRight;
 
@@ -75,11 +77,10 @@ public class KonsListComposite {
 	private int currentSashXPercentLeft = SASH_X_NOTSET;
 	private int currentSashXPercentRight = SASH_X_NOTSET;
 
-	private static final String TEXT_NOT_SHOWN = "?";
-
 	private List<KonsData> konsultationen;
 
-	private Konsultation actKons;
+	private Konsultation actKons = null;
+	private Patient actPat = null;
 	private static LabelProvider verrechnetLabelProvider;
 
 	{
@@ -117,14 +118,24 @@ public class KonsListComposite {
 		};
 	}
 
+	public void setLoadingLabel(String msg, boolean show) {
+		if (msg != null)
+		{
+			loadingLabel.setText(msg);
+		} else {
+			loadingLabel.setText(defaultLoading);			
+		}
+		loadingLabel.setVisible(show);
+		
+	}
 	public KonsListComposite(Composite parent, FormToolkit toolkit){
 		composite = toolkit.createComposite(parent);
 		this.toolkit = toolkit;
 
 		composite.setLayout(new MyLayout());
 
-		loadingLabel = toolkit.createLabel(composite, "Lade Konsultationen...");
-		loadingLabel.setVisible(false);
+		loadingLabel = toolkit.createLabel(composite, defaultLoading);
+		setLoadingLabel(null, false);
 
 		widgetRows = new ArrayList<>();
 
@@ -159,6 +170,12 @@ public class KonsListComposite {
 		composite.setLayoutData(layoutData);
 	}
 
+	public void getMoreKonsultationen(List<KonsData> konsultationen, Konsultation actKons){
+		this.konsultationen = konsultationen;
+		this.actKons = actKons;
+		refreshAllKons();
+	}
+
 	public void setKonsultationen(List<KonsData> konsultationen, Konsultation actKons){
 		this.konsultationen = konsultationen;
 		this.actKons = actKons;
@@ -166,23 +183,15 @@ public class KonsListComposite {
 	}
 
 	private void setLinkEnabled(String caller, WidgetRow  row, Konsultation actKons) {
-		String msg = "";
 		Konsultation row_kons = null;
-		if (actKons != null) {
-			msg = "act: " + actKons.getId() + " " + actKons.getDatum();
-		}
 		if (row.konsData != null &&	row.konsData.konsultation != null) {
 			row_kons = row.konsData.konsultation;
-			msg +=  " row " + row_kons.getId() + " " + row_kons.getDatum() + (row.hTitle.getEnabled() ? " wasEnabled " : " wasDisabled");
 		}
 		if (actKons != null && row != null && row_kons != null) {
-			// log.debug("hTitle for "+ row.hTitle.getText() + " " + row_kons.getId());
 			boolean konsEditable = Helpers.hasRightToChangeConsultations(row_kons, false);
 
 			boolean disabled = row_kons.getId().equals(actKons.getId()) || !konsEditable;
 			if (disabled == row.hTitle.getEnabled()) {
-				// log.trace(caller + " hTitle for  " + row.hTitle.getText() + " from "
-						// + msg  + " konsEditable " + konsEditable + " =>  " + (disabled ? "disabled" : "ensabled"));
 				row.hTitle.setEnabled(!disabled);
 			}
 		} else if (row != null) {
@@ -193,56 +202,76 @@ public class KonsListComposite {
 
 	public void refeshHyperLinks(Konsultation selectedKons){
 		String konsString = selectedKons != null ? selectedKons.getId() + " " + selectedKons.getLabel() : "null";
-		log.debug("refeshHyperLinks for " +  konsString + " on " + widgetRows.size() + " rows and redraw");
+		log.debug("refeshHyperLinks start for " +  konsString + " on " + widgetRows.size() + " rows and redraw");
 		actKons = selectedKons;
 		for (WidgetRow row : widgetRows) {
 			setLinkEnabled("refeshHyperLinks", row, selectedKons);
 		}
+		long start_ms = System.currentTimeMillis();
 		composite.redraw();
+		long now = System.currentTimeMillis();
+		long duration_in_sec = (now - start_ms) / 1000;
+		log.debug("refeshHyperLinks composite.redraw  took " + duration_in_sec + "." + ((now - start_ms) % 1000) + " secs");
+		log.debug("refeshHyperLinks done for " +  konsString + " on " + widgetRows.size() + " rows and redraw");
 	}
 
 	// refresh layout and all elements
 	private void refreshAllKons(){
 		// clear all widget rows
-		for (WidgetRow row : widgetRows) {
-			row.setKonsData(null);
-		}
-		List<WidgetRow> availableRows = new ArrayList<>();
-		availableRows.addAll(widgetRows);
-
-		if (konsultationen != null) {
-			int j = 0;
-			for (KonsData konsData : konsultationen) {
-				WidgetRow row;
-				if (availableRows.size() > 0) {
-					row = availableRows.remove(0);
-				} else {
-					row = new WidgetRow(composite);
-					widgetRows.add(row);
+		int j = 0;
+		synchronized(widgetRows) {
+			if (widgetRows.size() < 50) {
+				for (WidgetRow row : widgetRows) {
+					// TODO: Unsuccessfully tried to delete too many rows. After displaying a patient with > 500 consultation
+					// displaying the next one take an awful lot of time
+					row.setKonsData(null);
 				}
-				j += 1;
-				row.hTitle.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_htitle"); // for Jubula
-				row.etf.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_text"); // for Jubula
-				row.verrechnung.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_verrechnung"); // for Jubula
-				row.problems.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_problems"); // for Jubula
-				row.setKonsData(konsData);
-				row.hTitle.setToolTipText(Helpers.getExplantionForKonsEditIfBillet());
+			} else {
+				// When having many rows (e.g. > 500) it must faster (30 seconds or more) to start with empty list
+				widgetRows = new ArrayList<>();
 			}
-			log.debug("refreshAllKons for " + widgetRows.size() + " rows and " + konsultationen.size() +" konsultationen ");
-			loadingLabel.setVisible(false);
-			sashLeft.setVisible(konsultationen.size() > 0);
-			sashRight.setVisible(konsultationen.size() > 0);
-			if (actKons == null && konsultationen.size() > 0 &&
-					(actKons = konsultationen.get(0).konsultation) != null) {
-				log.debug("refreshAllKons for " + widgetRows.size() + " setting actKons to " + actKons.getId());
+			List<WidgetRow> availableRows = new ArrayList<>();
+			availableRows.addAll(widgetRows);
+		
+			if (konsultationen != null) {
+				j = 0;
+				for (KonsData konsData : konsultationen) {
+					WidgetRow row;
+					if (availableRows.size() > 0) {
+						row = availableRows.remove(0);
+					} else {
+						row = new WidgetRow(composite);
+						widgetRows.add(row);
+					}
+					j += 1;
+					/*
+					row.hTitle.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_htitle"); // for Jubula
+					row.etf.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_text"); // for Jubula
+					row.verrechnung.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_verrechnung"); // for Jubula
+					row.problems.setData("TEST_COMP_NAME", "KG_Iatrix_klc_row_"+j + "_problems"); // for Jubula
+					*/
+					row.setKonsData(konsData);
+					row.hTitle.setToolTipText(Helpers.getExplantionForKonsEditIfBillet());
+				}
+				log.debug("refreshAllKons for " + konsultationen.size() +" konsultationen, " + widgetRows.size() + " rows");
+				sashLeft.setVisible(konsultationen.size() > 0);
+				sashRight.setVisible(konsultationen.size() > 0);
+				if (actKons == null && konsultationen.size() > 0 &&
+						(actKons = konsultationen.get(0).konsultation) != null) {
+					log.debug("refreshAllKons for " + widgetRows.size() + " setting actKons to " + actKons.getId());
+				}
+				refeshHyperLinks(actKons);
+			} else {
+				sashLeft.setVisible(false);
+				sashRight.setVisible(false);
 			}
-			refeshHyperLinks(actKons);
-		} else {
-			loadingLabel.setVisible(false);
-			sashLeft.setVisible(false);
-			sashRight.setVisible(false);
 		}
+		long start_ms = System.currentTimeMillis();
 		composite.layout(true);
+		long now = System.currentTimeMillis();
+		long duration_in_sec = (now - start_ms) / 1000;
+		log.debug("refeshHyperLinks  composite.layout  took " + duration_in_sec + "." + ((now - start_ms) % 1000) + " secs");
+		log.debug("refreshAllKons composite.layout done");
 	}
 
 	private int percentToAbsolute(int base, int percent){
@@ -427,62 +456,63 @@ public class KonsListComposite {
 			int rightWidth = 0;
 			int totalWidth = 0;
 
-			for (WidgetRow row : widgetRows) {
-				if (row.konsData == null) {
-					// ignore
-					continue;
+			synchronized(widgetRows) {
+				for (WidgetRow row : widgetRows) {
+					if (row.konsData == null) {
+						// ignore
+						continue;
+					}
+	
+					int width;
+	
+					// for hTitle and lFall, min/max are identical
+					width = row.hTitle.computeSize(SWT.DEFAULT, SWT.DEFAULT, changed).x
+						+ row.lFall.computeSize(SWT.DEFAULT, SWT.DEFAULT, changed).x;
+					if (width > totalWidth) {
+						totalWidth = width;
+					}
+	
+					// left control (problems)
+					if (max) {
+						width = row.problems.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
+					} else {
+						width = row.problems.computeSize(5, SWT.DEFAULT, true).x;
+					}
+					if (width > leftWidth) {
+						leftWidth = width;
+					}
+	
+					// middle control (etf)
+					if (max) {
+						width = row.etf.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
+					} else {
+						width = row.etf.computeSize(5, SWT.DEFAULT).x;
+					}
+					if (width > middleWidth) {
+						middleWidth = width;
+					}
+	
+					// right control (verrechnung)
+					if (max) {
+						width = row.verrechnung.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
+					} else {
+						width = row.verrechnung.computeSize(5, SWT.DEFAULT).x;
+					}
+					if (width > rightWidth) {
+						rightWidth = width;
+					}
 				}
-
-				int width;
-
-				// for hTitle and lFall, min/max are identical
-				width = row.hTitle.computeSize(SWT.DEFAULT, SWT.DEFAULT, changed).x
-					+ row.lFall.computeSize(SWT.DEFAULT, SWT.DEFAULT, changed).x;
-				if (width > totalWidth) {
-					totalWidth = width;
-				}
-
-				// left control (problems)
+	
+				int width = Math.max(totalWidth, leftWidth + middleWidth + rightWidth);
+				width += sashWidthLeft + sashWidthRight;
+	
 				if (max) {
-					width = row.problems.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
+					maxWidthCache = width;
 				} else {
-					width = row.problems.computeSize(5, SWT.DEFAULT, true).x;
+					minWidthCache = width;
 				}
-				if (width > leftWidth) {
-					leftWidth = width;
-				}
-
-				// middle control (etf)
-				if (max) {
-					width = row.etf.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
-				} else {
-					width = row.etf.computeSize(5, SWT.DEFAULT).x;
-				}
-				if (width > middleWidth) {
-					middleWidth = width;
-				}
-
-				// right control (verrechnung)
-				if (max) {
-					width = row.verrechnung.computeSize(SWT.DEFAULT, SWT.DEFAULT, true).x;
-				} else {
-					width = row.verrechnung.computeSize(5, SWT.DEFAULT).x;
-				}
-				if (width > rightWidth) {
-					rightWidth = width;
-				}
+				return width;
 			}
-
-			int width = Math.max(totalWidth, leftWidth + middleWidth + rightWidth);
-			width += sashWidthLeft + sashWidthRight;
-
-			if (max) {
-				maxWidthCache = width;
-			} else {
-				minWidthCache = width;
-			}
-
-			return width;
 		}
 
 		@Override
@@ -656,8 +686,6 @@ public class KonsListComposite {
 	public static class KonsData {
 		Konsultation konsultation;
 
-		boolean showCharges;
-
 		// cache fields
 		String konsTitle;
 		String fallTitle;
@@ -665,10 +693,8 @@ public class KonsListComposite {
 		String konsText;
 		String verrechnungenText;
 
-		public KonsData(Konsultation konsultation, boolean showCharges){
+		public KonsData(Konsultation konsultation){
 			this.konsultation = konsultation;
-			this.showCharges = showCharges;
-
 			updateCacheFields();
 		}
 
@@ -690,26 +716,7 @@ public class KonsListComposite {
 				if (konsText == null) {
 					konsText = "";
 				}
-
-				if (showCharges) {
-					List<Verrechnet> leistungen = konsultation.getLeistungen();
-					List<String> leistungenLabels = replaceBlocks(leistungen);
-
-					StringBuffer sb = new StringBuffer();
-					boolean isFirst = true;
-					for (String leistungLabel : leistungenLabels) {
-						if (isFirst) {
-							isFirst = false;
-						} else {
-							sb.append(lineSeparator);
-						}
-						sb.append(leistungLabel);
-					}
-
-					verrechnungenText = sb.toString();
-				} else {
-					verrechnungenText = TEXT_NOT_SHOWN;
-				}
+				verrechnungenText = "Nichts";
 			} else {
 				konsTitle = "";
 				fallTitle = "";

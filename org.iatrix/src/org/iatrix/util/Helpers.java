@@ -40,6 +40,20 @@ import ch.rgw.tools.VersionedResource;
 import ch.rgw.tools.VersionedResource.ResourceItem;
 
 public class Helpers {
+	private static boolean showAllConsultations = false;
+	
+	/**
+	 * 
+	 */
+	public static void setShowAllConsultations(boolean newValue) {
+		showAllConsultations = newValue;
+	}
+	/**
+	 * 
+	 */
+	public static boolean getShowAllConsultations() {
+		return showAllConsultations;
+	}
 
 	/**
 	 * used by selectionEvent(PersistentObject obj)
