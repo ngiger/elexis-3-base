@@ -334,8 +334,8 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				logEvent(newKons, "eeli_kons " + msg + " SAVE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				// updateAllKonsAreas(actKons, KonsActions.SAVE_KONS);
 				Patient newPatient = newKons.getFall().getPatient();
-				if (!newPatient.getId().equals( actKons.getFall().getPatient().getId())) {
-					displaySelectedPatient(newPatient, "eeli_kons newPatient"); //$NON-NLS-1$
+				if (actKons != null && !newPatient.getId().equals(actKons.getFall().getPatient().getId())) {
+					displaySelectedPatient(newPatient, "eeli_kons newPatient");//$NON-NLS-1$
 				}
 				logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
@@ -417,9 +417,12 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 
 			@Override
 			public void runInUi(ElexisEvent ev){
-				log.debug("eeli_pat " + eeli_pat) ; //$NON-NLS-1$ 
-				displaySelectedPatient((Patient) ev.getObject(), "eeli_pat " + ev.getType()); //$NON-NLS-1$
-				// setPatient((Patient) ev.getObject());
+				Patient newPat = (Patient) ev.getObject();
+				if (actKons != null && !actKons.getFall().getPatient().getId().equals(newPat.getId()))
+				{
+					updateAllKonsAreas(null, KonsActions.ACTIVATE_KONS);
+					displaySelectedPatient(newPat, "eeli_pat " + ev.getType());//$NON-NLS-1$ 
+				}
 			}
 		};
 
@@ -606,7 +609,6 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 					+ newKons.getFall().getPatient().getPersonalia();
 				logEvent(newKons, "visible true " + msg); //$NON-NLS-1$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
-
 			} else
 			{
 				logEvent(newKons, "visible true newKons is null"); //$NON-NLS-1$
