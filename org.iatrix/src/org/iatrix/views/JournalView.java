@@ -96,7 +96,6 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	public static final String ID = Constants.ID;
 
 	private static Logger log = LoggerFactory.getLogger(JournalView.class);
-	private static Patient actPatient = null;
 	private static Konsultation actKons = null;
 	private static boolean removedStaleKonsLocks = false;
 
@@ -332,11 +331,11 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 			}
 			// when we get an update or select event the parameter is always not null
 			if ((actKons == null) || !Helpers.haveSameContent(newKons, actKons)) {
-					logEvent(newKons, "eeli_kons " + msg + " SAVE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
+				logEvent(newKons, "eeli_kons " + msg + " SAVE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				// updateAllKonsAreas(actKons, KonsActions.SAVE_KONS);
 				Patient newPatient = newKons.getFall().getPatient();
-				if (newPatient != actPatient) {
-						displaySelectedPatient(newPatient, "eeli_kons newPatient"); //$NON-NLS-1$
+				if (!newPatient.getId().equals( actKons.getFall().getPatient().getId())) {
+					displaySelectedPatient(newPatient, "eeli_kons newPatient"); //$NON-NLS-1$
 				}
 				logEvent(newKons, "eeli_kons " + msg + " ACTIVATE_KONS"); //$NON-NLS-1$ //$NON-NLS-2$
 				updateAllKonsAreas(newKons, KonsActions.ACTIVATE_KONS);
@@ -359,8 +358,7 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 	 */
 	private void displaySelectedPatient(Patient selectedPatient, String why){
 		if (selectedPatient == null) {
-			logEvent(null, why + " displaySelectedPatient no patient"); //$NON-NLS-1$ //$NON-NLS-2$
-			actPatient = null;
+			logEvent(null, why + " displaySelectedPatient " + "no patient"); //$NON-NLS-1$ //$NON-NLS-2$
 			updateAllKonsAreas(null, KonsActions.ACTIVATE_KONS);
 			return;
 
@@ -503,7 +501,9 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 
 			@Override
 			public void run(){
-				Helpers.exportToClipboard(actPatient, null); // TODO: selected problem
+				if (actKons != null) {
+					Helpers.exportToClipboard(actKons.getFall().getPatient(), null); // TODO: selected problem
+				}
 			}
 		};
 		exportToClipboardAction.setActionDefinitionId(Constants.EXPORT_CLIPBOARD_COMMAND);
@@ -517,10 +517,11 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 
 			@Override
 			public void run(){
-				Email.openMailApplication("", // No default to address //$NON-NLS-1$
-					null, Helpers.exportToClipboard(actPatient, null), // TODO: selected problem
-					null);
-
+				if (actKons != null) {
+					Email.openMailApplication("", // No default to address //$NON-NLS-1$
+						null, Helpers.exportToClipboard(actKons.getFall().getPatient(), null), // TODO: selected problem
+						null);
+				}
 			}
 		};
 		sendEmailAction.setActionDefinitionId(Constants.EXPORT_SEND_EMAIL_COMMAND);
