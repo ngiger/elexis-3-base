@@ -290,20 +290,23 @@ public class XML44Printer {
 	}
 	
 	private Kontakt loadAddressee(String paymentMode){
+		
 		Kontakt addressee;
 		if (paymentMode.equals(XMLExporter.TIERS_PAYANT)) {
+			// TP
 			addressee = fall.getRequiredContact(TarmedRequirements.INSURANCE);
-		} else {
-			addressee = fall.getGarant();
-		}
-		
-		Kontakt legalGuardian = pat.getLegalGuardian();
-		if ((addressee == null) || (!addressee.exists()) || legalGuardian != null) {
+		} else if (paymentMode.equals(XMLExporter.TIERS_GARANT)) {
+			// TG
+			Kontakt legalGuardian = pat.getLegalGuardian();
+			
 			if (legalGuardian != null) {
 				addressee = legalGuardian;
 			} else {
 				addressee = pat;
 			}
+		}
+		else {
+			addressee = fall.getGarant();
 		}
 		addressee.getPostAnschrift(true); // damit sicher eine existiert
 		return addressee;
@@ -352,9 +355,53 @@ public class XML44Printer {
 			
 			text.replace("\\[F44.Datum\\]", gesetzDatum);
 			text.replace("\\[F44.Nummer\\]", gesetzNummer);
+			
+			text.replace("\\[F44.FDatum\\]", getFDatum(body, fall));
+			text.replace("\\[F44.FNummer\\]", getFNummer(body, fall));
+			
 			text.replace("\\[F44.ZSRNIF\\]", gesetzZSRNIF);
 			text.replace("\\[F44.VEKANr\\]", vekaNumber);
 		}
+	}
+	
+	private String getFDatum(BodyType body, Fall fall){
+		if (body.getUvg() != null) {
+			String ret = fall.getInfoString("Unfalldatum");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+		}
+		if (body.getIvg() != null) {
+			String ret = fall.getInfoString("Verfügungsdatum");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+		}
+		return fall.getBeginnDatum();
+	}
+	
+	private String getFNummer(BodyType body, Fall fall){
+		if (body.getUvg() != null) {
+			String ret = fall.getInfoString("Unfall-Nr.");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+			ret = fall.getInfoString("Unfallnummer");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+		}
+		if (body.getIvg() != null) {
+			String ret = fall.getInfoString("Verfügungs-Nr.");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+			ret = fall.getInfoString("Verfügungsnummer");
+			if (ret != null && !ret.isEmpty()) {
+				return ret;
+			}
+		}
+		return fall.getFallNummer();
 	}
 	
 	private void addRemarks(final String remark){

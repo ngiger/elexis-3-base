@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     MEDEVIT <office@medevit.at> - initial API and implementation
  ******************************************************************************/
@@ -49,11 +49,11 @@ import ch.elexis.data.Artikel;
 
 public class DetailComposite extends ScrolledComposite {
 	private DataBindingContext m_bindingContext;
-	
+
 	private WritableValue item = new WritableValue(null, IArtikelstammItem.class);
-	
+
 	public static String prefAtcLanguage = null;
-	
+
 	private Label lblDSCR;
 	private Label lblPHZNR;
 	private Label lblGTIN;
@@ -77,21 +77,21 @@ public class DetailComposite extends ScrolledComposite {
 	private Group grpDefaultSignature;
 	private ArticleDefaultSignatureComposite adsc;
 	private Composite mainComposite;
-	
+
 	public DetailComposite(Composite parent, int style, String atcCodeLanguage){
 		super(parent, style);
 		setLayout(new GridLayout(1, false));
 		setLayoutData(SWTHelper.getFillGridData(1, true, 1, true));
-		
+
 		mainComposite = new Composite(this, SWT.NONE);
 		mainComposite.setLayout(new GridLayout(1, false));
-		
+
 		DetailComposite.prefAtcLanguage = atcCodeLanguage;
-		
+
 		Composite headerComposite = new Composite(mainComposite, SWT.NONE);
 		headerComposite.setLayout(new GridLayout(4, false));
 		headerComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		lblDSCR = new Label(headerComposite, SWT.NONE);
 		lblDSCR.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		lblDSCR.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_DARK_SHADOW));
@@ -99,30 +99,30 @@ public class DetailComposite extends ScrolledComposite {
 		GridData gd_lblDSCR = new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1);
 		gd_lblDSCR.widthHint = 435;
 		lblDSCR.setLayoutData(gd_lblDSCR);
-		
+
 		Label lblGtin = new Label(headerComposite, SWT.NONE);
 		lblGtin.setToolTipText("European Article Number / Global Trade Index Number");
 		lblGtin.setText("EAN/GTIN");
-		
+
 		lblGTIN = new Label(headerComposite, SWT.NONE);
 		lblGTIN.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblPhznr = new Label(headerComposite, SWT.NONE);
 		lblPhznr.setToolTipText("Pharmacode");
 		lblPhznr.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
 		lblPhznr.setText("Pharmacode");
-		
+
 		lblPHZNR = new Label(headerComposite, SWT.NONE);
 		lblPHZNR.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		lblAbgabekategorie = new Label(headerComposite, SWT.NONE);
 		lblAbgabekategorie.setText("Abgabekategorie");
-		
+
 		lblABGABEKATEGORIE = new Label(headerComposite, SWT.NONE);
 		lblABGABEKATEGORIE.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		new Label(headerComposite, SWT.NONE);
 		new Label(headerComposite, SWT.NONE);
-		
+
 		Group grpPackungsgroessenPreise = new Group(mainComposite, SWT.NONE);
 		grpPackungsgroessenPreise.setText("Preis");
 		grpPackungsgroessenPreise.setLayout(new GridLayout(7, false));
@@ -130,16 +130,16 @@ public class DetailComposite extends ScrolledComposite {
 			1));
 		Label lblExFactoryPreis = new Label(grpPackungsgroessenPreise, SWT.NONE);
 		lblExFactoryPreis.setText("Ex-Factory");
-		
+
 		lblEXFACTORYPRICE = new Label(grpPackungsgroessenPreise, SWT.BORDER);
 		lblEXFACTORYPRICE.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		Label lblPublicPrice = new Label(grpPackungsgroessenPreise, SWT.NONE);
 		lblPublicPrice.setText("Publikumspreis");
-		
+
 		txtPUBLICPRICE = new Text(grpPackungsgroessenPreise, SWT.BORDER);
 		txtPUBLICPRICE.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		controlDecoIsCalculatedPPUB = new ControlDecoration(txtPUBLICPRICE, SWT.LEFT | SWT.TOP);
 		controlDecoIsCalculatedPPUB.setDescriptionText("Preis wurde mittels Marge kalkuliert!");
 		FieldDecoration fieldDecoration =
@@ -147,13 +147,13 @@ public class DetailComposite extends ScrolledComposite {
 				FieldDecorationRegistry.DEC_INFORMATION);
 		controlDecoIsCalculatedPPUB.setImage(fieldDecoration.getImage());
 		controlDecoIsCalculatedPPUB.hide();
-		
+
 		lblSelbstbehalt = new Label(grpPackungsgroessenPreise, SWT.NONE);
 		lblSelbstbehalt.setText("Selbstbehalt (%)");
-		
+
 		lblSELBSTBEHALT = new Label(grpPackungsgroessenPreise, SWT.NONE);
 		lblSELBSTBEHALT.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		btnUserDefinedPrice = new Button(grpPackungsgroessenPreise, SWT.FLAT | SWT.CHECK);
 		btnUserDefinedPrice.setToolTipText("Benutzerdefinierter Preis");
 		btnUserDefinedPrice.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
@@ -168,97 +168,101 @@ public class DetailComposite extends ScrolledComposite {
 				txtPUBLICPRICE.setFocus();
 			}
 		});
-		
+
 		Group grepATCCode = new Group(mainComposite, SWT.NONE);
 		grepATCCode.setLayout(new GridLayout(1, false));
 		grepATCCode.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grepATCCode.setText("ATC-Code");
-		
+
 		treeATC = new Tree(grepATCCode, SWT.BORDER);
 		GridData gd_treeATC = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_treeATC.heightHint = 80;
 		treeATC.setLayoutData(gd_treeATC);
 		treeATC.setBackground(parent.getBackground());
-		
+
 		Group grpMarker = new Group(mainComposite, SWT.None);
 		grpMarker.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		grpMarker.setText("Marker");
 		grpMarker.setLayout(new GridLayout(2, false));
-		
+
 		btnCheckIsNarcotic = new Button(grpMarker, SWT.CHECK);
 		btnCheckIsNarcotic.setText("Betäubungsmittel");
-		
+
 		btnLPPVEntry = new Button(grpMarker, SWT.CHECK);
 		btnLPPVEntry
 			.setToolTipText("Artikel wird in Liste pharmazeutischer Präparate mit spezieller Verwendung (LPPV) geführt");
 		btnLPPVEntry.setText("LPPV Eintrag");
-		
+
 		Group grpLimitations = new Group(mainComposite, SWT.None);
 		grpLimitations.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		grpLimitations.setText("Einschränkungen");
 		grpLimitations.setLayout(new GridLayout(2, false));
-		
+
 		btnlLimitation = new Button(grpLimitations, SWT.CHECK);
 		btnlLimitation.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
 		btnlLimitation.setText("Limitation");
-		
+
 		lblLimitationspunkte = new Label(grpLimitations, SWT.NONE);
 		lblLimitationspunkte.setText("Limitationspunkte");
-		
+
 		lblLIMITATIONPOINTS = new Label(grpLimitations, SWT.NONE);
 		lblLIMITATIONPOINTS.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		lblLimitationstext = new Label(grpLimitations, SWT.NONE);
 		lblLimitationstext.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
 		lblLimitationstext.setText("Limitationstext");
-		
+
 		txtLIMITATIONTEXT = new Text(grpLimitations, SWT.WRAP | SWT.MULTI);
 		txtLIMITATIONTEXT.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		txtLIMITATIONTEXT.setBackground(grpLimitations.getBackground());
-		
+
 		Group grpHersteller = new Group(mainComposite, SWT.NONE);
 		grpHersteller.setLayout(new GridLayout(1, false));
 		grpHersteller.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grpHersteller.setText("Hersteller");
-		
+
 		lblHERSTELLER = new Label(grpHersteller, SWT.NONE);
 		lblHERSTELLER.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-		
+
 		grpDefaultSignature = new Group(mainComposite, SWT.NONE);
 		grpDefaultSignature.setLayout(new GridLayout(1, false));
 		grpDefaultSignature.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		grpDefaultSignature.setText("Standard Signatur");
-		
+
 		adsc = new ArticleDefaultSignatureComposite(grpDefaultSignature, SWT.NONE);
 		adsc.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		adsc.setOnLocationEnabled(false);
-		
+
 		m_bindingContext = initDataBindings();
 		adsc.initDataBindings(m_bindingContext);
 		adsc.setAutoSave(true);
-		
+
 		this.setContent(mainComposite);
 		this.setExpandHorizontal(true);
 		this.setExpandVertical(true);
-		
+
 		this.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		this.layout(true, true);
+	}
+
+	public Composite getMainComposite(){
+		return mainComposite;
 	}
 
 	@Override
 	protected void checkSubclass(){
 		// Disable the check that prevents subclassing of SWT components
 	}
-	
+
 	public void setItem(IArtikelstammItem obj){
 		if (isDisposed()) {
 			return;
 		}
 		item.setValue(obj);
-		
+
 		String atcCode = obj.getATCCode();
 		adsc.setArticleToBind((Artikel) obj);
-		
+
 		if (obj.isCalculatedPrice()) {
 			controlDecoIsCalculatedPPUB.show();
 		} else {
@@ -295,11 +299,11 @@ public class DetailComposite extends ScrolledComposite {
 			TreeItem root = new TreeItem(treeATC, SWT.None);
 			root.setText(obj.getATCCode());
 		}
-		
+
 		this.setMinSize(mainComposite.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		this.layout(true, true);
 	}
-	
+
 	protected DataBindingContext initDataBindings(){
 		DataBindingContext bindingContext = new DataBindingContext();
 		//
@@ -440,7 +444,7 @@ public class DetailComposite extends ScrolledComposite {
 		//
 		return bindingContext;
 	}
-	
+
 	public static void setPrefAtcLanguage(String prefAtcLanguage){
 		DetailComposite.prefAtcLanguage = prefAtcLanguage;
 	}
