@@ -200,14 +200,14 @@ public class JournalView extends ViewPart implements IActivationListener, ISavea
 				GlobalActions.delKonsAction, problemsArea.delProblemAction, exportToClipboardAction, sendEmailAction,
 				konsTextComposite.getVersionForwardAction(), konsTextComposite.getVersionBackAction(),
 				konsTextComposite.getChooseVersionAction(), konsTextComposite.getPurgeAction(),
-				konsTextComposite.getSaveAction(), showAllConsultationsAction, showMoreConsultations,
+				konsTextComposite.getSaveAction(), showMoreConsultations, showAllConsultationsAction,
 				problemsArea.addFixmedikationAction);
 		} else {
 			menus.createMenu(addKonsultationAction, GlobalActions.redateAction, problemsArea.addProblemAction,
 				GlobalActions.delKonsAction, problemsArea.delProblemAction, exportToClipboardAction, sendEmailAction,
 				konsTextComposite.getVersionForwardAction(), konsTextComposite.getVersionBackAction(),
 				konsTextComposite.getChooseVersionAction(), konsTextComposite.getSaveAction(),
-				showAllConsultationsAction, showMoreConsultations, problemsArea.addFixmedikationAction);
+				showMoreConsultations, showAllConsultationsAction, problemsArea.addFixmedikationAction);
 		}
 
 		menus.createToolbar(sendEmailAction, exportToClipboardAction, addKonsultationAction,

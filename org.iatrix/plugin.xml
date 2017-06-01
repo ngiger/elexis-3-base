@@ -91,25 +91,25 @@
             commandId="org.iatrix.commands.show_more_consultations"
             contextId="org.iatrix.view.context"
             schemeId="ch.elexis.ui.keybindingScheme"
-            sequence="F6">
+            sequence="F5">
       </key>
       <key
             commandId="org.iatrix.commands.show_more_consultations"
             contextId="org.iatrix.view.konslist.context"
             schemeId="ch.elexis.ui.keybindingScheme"
-            sequence="F6">
+            sequence="F5">
       </key>
       <key
             commandId="org.iatrix.commands.show_all_consultations"
             contextId="org.iatrix.view.context"
             schemeId="ch.elexis.ui.keybindingScheme"
-            sequence="F5">
+            sequence="F6">
       </key>
       <key
             commandId="org.iatrix.commands.show_all_consultations"
             contextId="org.iatrix.view.konslist.context"
             schemeId="ch.elexis.ui.keybindingScheme"
-            sequence="F5">
+            sequence="F6">
       </key>
    </extension>
    <extension

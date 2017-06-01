@@ -103,7 +103,7 @@ public class KonsListView extends ViewPart implements IActivationListener, ISave
 
 		makeActions();
 		menus = new ViewMenus(getViewSite());
-		menus.createMenu(showAllConsultationsAction, showMoreConsultationsAction);
+		menus.createMenu( showMoreConsultationsAction, showAllConsultationsAction);
 		// menus.createToolbar(showAllConsultationsAction, showAllChargesAction);
 
 		GlobalEventDispatcher.addActivationListener(this, this);
