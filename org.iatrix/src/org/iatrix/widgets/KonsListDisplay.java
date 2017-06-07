@@ -87,13 +87,13 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 			if (konsultationen == null || konsultationen.size() == 0) {
 				Patient patient = (actKons == null ?
 					(Patient) ElexisEventDispatcher.getSelected(Patient.class) :
-					actKons.getFall().getPatient()); 
+					actKons.getFall().getPatient());
 				if (showLoading) {
-					konsListComposite.setLoadingLabel(null, true);					
+					konsListComposite.setLoadingLabel(null, true);
 				} else {
 					String msg = "Keine Konsultationen" +
 							(patient != null ? " für " + patient.getPersonalia() : "");
-					konsListComposite.setLoadingLabel(msg, true);					
+					konsListComposite.setLoadingLabel(msg, true);
 				}
 			} else  {
 				konsListComposite.setLoadingLabel(null, showLoading);
@@ -142,30 +142,19 @@ public class KonsListDisplay extends Composite implements IJobChangeListener, IJ
 	private static boolean savedshowConsultations = false;
 	@Override
 	public void setKons(Konsultation newKons, KonsActions op){
-		if (newKons == null) {
-			log.debug("setKons reload null");
+		if (!Helpers.twoKonsEqual(newKons, actKons)) {
+			log.debug("setKons " + (newKons != null ? newKons.getId() + " " + newKons.getLabel() + " " + newKons.getLabel() : "null" ));
 			actKons = newKons;
-			reload(false, null);
-		} else {
-			if (newKons != null && actKons != null && newKons.getId().equals(actKons.getId()) &&
-					(savedshowConsultations == Helpers.getShowAllConsultations()
-					&& (!op.equals(KonsActions.ACTIVATE_KONS)))) {
-				log.debug("setKons konsId matches skip reload " + actKons + " all " + savedshowConsultations + " " + op);
+			if (newKons == null) {
+				reload(false, null);
 			} else {
-				String konsInfo = "actKons " + ( actKons != null ? actKons.getId() + actKons.getLabel() : "null") +
-						newKons.getId() + " " + newKons.getLabel() +
-						" " + newKons.getFall().getPatient().getPersonalia();
-				log.debug("setKons " +konsInfo);
-				konsListComposite.setLoadingLabel(null, true);					
-				actKons = newKons;
 				dataLoader.cancel();
 				reload(true, null);
 				dataLoader.setKons(newKons);
 				dataLoader.schedule();
 			}
+			konsListComposite.refeshHyperLinks(actKons);
 		}
-		// Ist das Notwendig TODO: ngngng
-		//	konsListComposite.refeshHyperLinks(actKons);
 	}
 
 	public void worked(int work){
