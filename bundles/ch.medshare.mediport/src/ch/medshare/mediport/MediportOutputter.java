@@ -30,6 +30,7 @@ import org.jdom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.elexis.TarmedRechnung.XMLExporter;
 import ch.elexis.TarmedRechnung.XMLExporterUtil;
 import ch.elexis.core.data.activator.CoreHub;
 import ch.elexis.core.data.interfaces.IRnOutputter;
@@ -356,7 +357,7 @@ public class MediportOutputter extends ch.elexis.TarmedRechnung.XMLExporter {
 		// Hinweis:
 		// XML Standard: http://www.forum-datenaustausch.ch/mdinvoicerequest_xml4.00_v1.2_d.pdf
 		// Dort steht beim Feld 11310: Gesetzlicher Vertreter des Patienten.
-		Element guarantor = new Element("guarantor", ns);
+		Element guarantor = new Element("guarantor", XMLExporter.nsinvoice);
 		guarantor.addContent(XMLExporterUtil.buildAdressElement(patient, true)); // use "Anschrift" instead of
 		// contact details (e.g. for
 		// "gesetzliche Vertretung")
