@@ -82,7 +82,7 @@ public class SwissmedicSearchAction extends Action implements IKonsExtension, IH
 				Program.launch(url);
 			} else {
 				MessageDialog.openInformation(Display.getDefault().getActiveShell(), "Swissmedic",
-					"Für Artikel " + medication.getArticle().getText()
+					"Für Artikel " + (medication == null ? "null" : medication.getArticle().getText())
 						+ " ist keine GTIN hinterlegt. Diese wird für die Suche benötigt.");
 			}
 		} else {

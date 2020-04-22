@@ -224,7 +224,7 @@ public class ArtikelstammImporterTest {
 					((IArtikelstammItem) nonPharmaOnlyInFirst.get()).isBlackBoxed(),
 					((IArtikelstammItem) nonPharmaOnlyInFirst.get()).isDeleted());
 			}
-			assertFalse(nonPharmaOnlyInFirst.isPresent());
+			assertFalse(nonPharmaOnlyInFirst != null && nonPharmaOnlyInFirst.isPresent());
 		} else {
 			assertTrue(nonPharmaOnlyInFirst.isPresent());
 			assertFalse(((IArtikelstammItem) nonPharmaOnlyInFirst.get()).isBlackBoxed());

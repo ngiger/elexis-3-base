@@ -11,6 +11,13 @@ Bundle-ClassPath: rsc/wsdl/,
  .
 Require-Bundle: ch.elexis.core.data;bundle-version="3.1.0",
  ch.rgw.utility,
- org.apache.commons.codec
+ org.apache.commons.codec,
+ jaxb-api
 Export-Package: ch.elexis.docbox.ws.client
-Import-Package: org.slf4j
+Import-Package: javax.jws,
+ javax.xml.bind,
+ javax.xml.soap,
+ javax.xml.ws,
+ javax.xml.ws.handler,
+ javax.xml.ws.handler.soap,
+ org.slf4j

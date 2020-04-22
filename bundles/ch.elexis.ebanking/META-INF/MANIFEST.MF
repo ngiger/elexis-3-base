@@ -5,5 +5,7 @@ Bundle-SymbolicName: ch.elexis.ebanking
 Bundle-Version: 3.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Multi-Release: true
-Import-Package: org.slf4j
+Import-Package: javax.xml.bind,
+ org.slf4j
 Export-Package: ch.elexis.ebanking.parser
+Require-Bundle: jaxb-api

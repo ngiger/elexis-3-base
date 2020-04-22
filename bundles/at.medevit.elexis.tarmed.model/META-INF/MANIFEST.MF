@@ -9,7 +9,10 @@ Multi-Release: true
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.8.0",
  org.jdom,
  ch.rgw.utility
-Import-Package: org.slf4j;version="1.7.2"
+Import-Package: javax.xml.bind,
+ javax.xml.bind.annotation;version="2.3.0",
+ javax.xml.bind.annotation.adapters;version="2.3.0",
+ org.slf4j;version="1.7.2"
 Export-Package: at.medevit.elexis.tarmed.model,
  ch.fd.invoice400.request,
  ch.fd.invoice400.response,

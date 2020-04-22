@@ -21,7 +21,7 @@ It can be easily launched on the console using @javaws  http://ifedorenko.github
 
 h2. Building
 
-You need Java 1.8+. Maven >= 3.3. Then you should be able to generate a p2 update site using the following calls:
+You need Java 11+. Maven >= 3.3. Then you should be able to generate a p2 update site using the following calls:
 
 @git clone https://github.com/elexis/elexis-3-base@
 @cd elexis-3-base@

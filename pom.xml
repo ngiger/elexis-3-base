@@ -226,13 +226,14 @@ if ( System.getProperty("git_branch") == null ) {
       <plugins>
         <plugin>
           <!-- Use compiler plugin with tycho as the adapter to the JDT compiler. -->
-          <artifactId>maven-compiler-plugin </artifactId>
-          <version>3.1</version>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.1</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8 </target>
+            <source>1.11</source>
+            <target>1.11 </target>
+            <compiler-version>11</compiler-version>
             <compilerId>jdt</compilerId>
-            <compilerArgument>-err:nullAnnot,null </compilerArgument>
+            <compilerArgument>-err:nullAnnot,null</compilerArgument>
             <!-- insert your warn/err configuration here -->
           </configuration>
           <dependencies>

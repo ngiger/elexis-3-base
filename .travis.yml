@@ -15,13 +15,13 @@ matrix:
   
 install: mvn --batch-mode -V -Dgit.target.branch=$TRAVIS_BRANCH -Dgit.core.branch=$TRAVIS_BRANCH -DskipTests=true -Dmaven.javadoc.skip=true clean validate --quiet
 
-script: mvn  --batch-mode -V -Dgit.target.branch=$TRAVIS_BRANCH -Dgit.core.branch=$TRAVIS_BRANCH -DNL=$NL --fail-at-end clean verify
+script: mvn  --batch-mode -V -Dgit.target.branch=$TRAVIS_BRANCH -Dgit.core.branch=$TRAVIS_BRANCH -DNL=$NL --fail-at-end clean verify -Dtycho.localArtifacts=ignore
   
 notifications:
   email:
   - niklaus.giger@member.fsf.org
 jdk:
-  - openjdk8
+  - openjdk11
 
 services:
   - xvfb
