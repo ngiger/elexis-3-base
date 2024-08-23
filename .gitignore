@@ -11,3 +11,7 @@ bin/
 target/
 jetty.log
 .polyglot.build.properties
+
+# devenv
+.devenv.*
+.devenv
